@@ -1,0 +1,31 @@
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 animate-fade-in-up">
+    <ng-container *ngFor="let field of antecedentsFields">
+        <div class="bg-white p-6 rounded-3xl shadow space-y-4 border border-gray-200 transition-all hover:shadow-xl hover:-translate-y-1 duration-300">
+
+            <!-- Label + icône -->
+            <div class="flex items-center gap-3">
+                <div class="p-2 rounded-full shadow-sm" [ngClass]="field.iconBg">
+                    <i class="lucide w-5 h-5" [ngClass]="field.icon"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-900 break-words max-w-full">
+                    {{ field.label }}
+                </h3>
+            </div>
+
+            <!-- Champ -->
+            <mat-form-field appearance="fill" class="w-full">
+                <mat-label>{{ field.label}}</mat-label>
+                <input matInput [formControl]="chipInputControl" (keydown)="handleAutocompleteSelection($event, field.name)" placeholder="{{ field.placeholder }}" />
+            </mat-form-field>
+
+            <!-- Chip listbox -->
+            <mat-chip-listbox [@chipAnimation] multiple class="w-full">
+                <mat-chip *ngFor="let chip of getChips(field.name).controls; let i = index" [value]="chip.value" selected [removable]="true" (removed)="removeChip(field.name, i)">
+                    {{ chip.value }}
+                    <button matChipRemove [attr.aria-label]="'Supprimer ' + chip.value">✕</button>
+                </mat-chip>
+            </mat-chip-listbox>
+
+        </div>
+    </ng-container>
+</div>

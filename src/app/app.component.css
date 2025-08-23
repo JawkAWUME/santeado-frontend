@@ -1,0 +1,34 @@
+.mat-form-field-appearance-fill .mat-form-field-flex {
+    background-color: #f9fafb;
+    border-radius: 12px;
+    padding: 0 1rem;
+    transition: background-color 0.7s ease, box-shadow 0.7s ease;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.8);
+}
+
+.mat-form-field-appearance-fill.mat-focused .mat-form-field-flex {
+    background-color: #e0f2f1;
+    box-shadow: 0 0 0 4px rgba(5, 135, 137, 0.4), inset 0 2px 6px rgba(0, 0, 0, 0.06);
+}
+
+.mat-form-field-label {
+    color: #065f60;
+    font-weight: 600;
+    transition: color 0.7s ease, transform 0.7s ease;
+}
+
+.mat-form-field.mat-focused .mat-form-field-label {
+    color: #027373;
+}
+
+.mat-input-element {
+    color: #111827;
+    font-weight: 500;
+    transition: color 0.7s ease;
+    background: transparent;
+}
+
+input:focus::placeholder {
+    color: #4b5563;
+    opacity: 1;
+}

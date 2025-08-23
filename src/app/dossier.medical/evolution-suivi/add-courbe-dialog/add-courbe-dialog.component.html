@@ -1,0 +1,65 @@
+<h2 mat-dialog-title class="text-xl font-semibold text-gray-900 flex items-center gap-2">
+    <mat-icon class="text-indigo-600 bg-indigo-100 p-2 rounded-full shadow-sm">show_chart</mat-icon>
+    Nouvelle Courbe Clinique
+</h2>
+
+<mat-dialog-content class="space-y-6">
+    <form [formGroup]="form" class="space-y-6 animate-fade-in-up">
+
+        <!-- Carte principale -->
+        <div class="form-card-3d space-y-6">
+            <p class="text-gray-600">Veuillez remplir les informations pour la courbe clinique.</p>
+
+            <!-- Type de mesure -->
+            <mat-form-field appearance="fill" class="w-full">
+                <mat-label>Type de mesure</mat-label>
+                <input matInput formControlName="type" placeholder="Ex : Température, Tension artérielle..." required />
+                <mat-error *ngIf="form.get('type')?.hasError('required')">Type requis</mat-error>
+            </mat-form-field>
+        </div>
+
+        <!-- Carte des mesures -->
+        <div class="form-card-3d space-y-6">
+            <div class="flex items-center gap-2">
+                <mat-icon class="text-indigo-600 bg-indigo-100 p-2 rounded-full shadow-sm">timeline</mat-icon>
+                <h3 class="text-lg font-semibold text-gray-900">Mesures</h3>
+            </div>
+
+            <div formArrayName="mesures" class="space-y-4">
+                <div *ngFor="let mesure of mesures.controls; let i = index" [formGroupName]="i" class="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+
+                    <!-- Date -->
+                    <mat-form-field appearance="fill" class="w-full">
+                        <mat-label>Date de la mesure</mat-label>
+                        <input matInput [matDatepicker]="picker" formControlName="date" required />
+                        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                        <mat-datepicker #picker></mat-datepicker>
+                        <mat-error *ngIf="mesure.get('date')?.hasError('required')">Date requise</mat-error>
+                    </mat-form-field>
+
+                    <!-- Valeur -->
+                    <mat-form-field appearance="fill" class="w-full">
+                        <mat-label>Valeur de la mesure</mat-label>
+                        <input matInput type="number" formControlName="valeur" placeholder="Ex : 37.5, 120/80..." required />
+                        <mat-error *ngIf="mesure.get('valeur')?.hasError('required')">Valeur requise</mat-error>
+                    </mat-form-field>
+
+                    <!-- Bouton supprimer -->
+                    <button mat-icon-button color="warn" (click)="removeMesure(i)" class="hover:bg-red-100 rounded-full">
+            <mat-icon>remove</mat-icon>
+          </button>
+                </div>
+            </div>
+
+            <!-- Ajouter une mesure -->
+            <button mat-raised-button color="primary" (click)="addMesure()" class="flex items-center gap-2">
+        <mat-icon>add</mat-icon> Ajouter une mesure
+      </button>
+        </div>
+    </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" class="space-x-2">
+    <button mat-stroked-button color="primary" (click)="cancel()">Annuler</button>
+    <button mat-flat-button color="primary" [disabled]="form.invalid" (click)="save()">Ajouter</button>
+</mat-dialog-actions>

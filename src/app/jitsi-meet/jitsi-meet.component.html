@@ -1,0 +1,52 @@
+<app-sidebar></app-sidebar>
+
+<div class="main-container md:ml-72 p-4 md:p-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+    <!-- Vidéo -->
+    <div class="glass-card rounded-2xl shadow-lg border border-gray-200 p-4 flex flex-col space-y-4">
+        <h2 class="text-lg md:text-xl font-semibold text-gray-800 flex items-center gap-2">
+            <i class="bi bi-camera-video text-blue-600 text-2xl"></i> Téléconsultation
+        </h2>
+
+        <!-- Jitsi -->
+        <div id="jaas-container" class="w-full h-[300px] sm:h-[400px] lg:h-[450px] rounded-xl overflow-hidden border border-gray-300"></div>
+
+        <div class="text-xs md:text-sm text-gray-500 mt-1 flex items-center gap-1">
+            <i class="bi bi-info-circle"></i> Salle : <strong>{{ roomName }}</strong>
+        </div>
+    </div>
+
+    <!-- Chat -->
+    <div class="glass-card rounded-2xl shadow-lg border border-gray-200 p-4 flex flex-col h-[450px] sm:h-[530px]">
+        <h2 class="text-lg md:text-xl font-semibold text-gray-800 mb-2 flex items-center gap-2">
+            <i class="bi bi-chat-dots text-green-600 text-2xl"></i> Chat
+        </h2>
+
+        <!-- Messages -->
+        <div #messageContainer class="flex-1 overflow-y-auto space-y-3 mb-3 pr-1 scroll-smooth">
+            <div *ngFor="let msg of messages" class="flex flex-col" [ngClass]="{
+              'items-end': msg.expediteurType === userRole,
+              'items-start': msg.expediteurType !== userRole
+           }">
+
+                <div class="max-w-[80%] rounded-xl px-4 py-2 shadow-sm" [ngClass]="{
+                'bg-blue-500 text-white': msg.expediteurType === 'PRO_SANTE',
+                'bg-green-500 text-white': msg.expediteurType === 'PATIENT'
+             }">
+                    <span class="block text-[11px] opacity-80">{{ msg.expediteurType }}</span>
+                    <p class="text-sm leading-snug">{{ msg.contenu }}</p>
+                    <div class="text-[10px] opacity-70 text-right">{{ msg.dateEnvoi | date:'shortTime' }}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Saisie -->
+        <div class="flex gap-2 items-center border-t pt-2">
+            <input [(ngModel)]="nouveauMessage" (keyup.enter)="envoyerMessage()" type="text" class="flex-1 border rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="Écrivez un message..." />
+
+            <button (click)="envoyerMessage()" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-full shadow-sm transition">
+        <i class="bi bi-send"></i>
+      </button>
+        </div>
+    </div>
+</div>

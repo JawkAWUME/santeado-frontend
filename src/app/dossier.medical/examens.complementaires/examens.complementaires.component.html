@@ -1,0 +1,206 @@
+<!-- examens-complementaires.component.html -->
+<div [formGroup]="form" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 animate-fade-in-up">
+
+    <!-- 🔬 Analyses sanguines -->
+    <div class="bg-white p-6 rounded-3xl shadow space-y-4 border border-gray-200 transition-all hover:shadow-xl hover:-translate-y-1 duration-300">
+        <div class="flex items-center gap-3">
+            <div class="p-2 rounded-full shadow-sm bg-red-100">
+                <i class="lucide lucide-droplet w-5 h-5 text-red-500"></i>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-900">Analyses Sanguines</h3>
+        </div>
+
+        <div formArrayName="analysesSanguines" class="space-y-4">
+            <div *ngFor="let group of analysesSanguines.controls; let i = index" [formGroupName]="i" class="flex gap-4 items-center">
+                <mat-form-field class="w-1/2">
+                    <mat-label>Nom</mat-label>
+                    <input matInput formControlName="nom">
+                </mat-form-field>
+                <mat-form-field class="w-1/2">
+                    <mat-label>Valeur</mat-label>
+                    <input matInput formControlName="valeur">
+                </mat-form-field>
+                <button mat-icon-button color="warn" (click)="removeEntry(analysesSanguines, i)">
+          <mat-icon>delete</mat-icon>
+        </button>
+            </div>
+            <button mat-stroked-button color="primary" (click)="addEntry(analysesSanguines)">Ajouter une analyse</button>
+        </div>
+    </div>
+
+    <!-- 🚽 Analyses urines -->
+    <div class="bg-white p-6 rounded-3xl shadow space-y-4 border border-gray-200 transition-all hover:shadow-xl hover:-translate-y-1 duration-300">
+        <div class="flex items-center gap-3">
+            <div class="p-2 rounded-full shadow-sm bg-yellow-100">
+                <i class="lucide lucide-flask-conical w-5 h-5 text-yellow-500"></i>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-900">Analyses Urinaires</h3>
+        </div>
+
+        <div formArrayName="analysesUrines" class="space-y-4">
+            <div *ngFor="let group of analysesUrines.controls; let i = index" [formGroupName]="i" class="flex gap-4 items-center">
+                <mat-form-field class="w-1/2">
+                    <mat-label>Nom</mat-label>
+                    <input matInput formControlName="nom">
+                </mat-form-field>
+                <mat-form-field class="w-1/2">
+                    <mat-label>Valeur</mat-label>
+                    <input matInput formControlName="valeur">
+                </mat-form-field>
+                <button mat-icon-button color="warn" (click)="removeEntry(analysesUrines, i)">
+          <mat-icon>delete</mat-icon>
+        </button>
+            </div>
+            <button mat-stroked-button color="primary" (click)="addEntry(analysesUrines)">Ajouter une analyse</button>
+        </div>
+    </div>
+
+    <!-- 🧪 Tests spéciaux -->
+    <div class="bg-white p-6 rounded-3xl shadow space-y-4 border border-gray-200 transition-all hover:shadow-xl hover:-translate-y-1 duration-300">
+        <div class="flex items-center gap-3">
+            <div class="p-2 rounded-full shadow-sm bg-blue-100">
+                <i class="lucide lucide-activity w-5 h-5 text-blue-500"></i>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-900">Tests Spéciaux</h3>
+        </div>
+
+        <div formArrayName="testsSpeciaux" class="space-y-4">
+            <div *ngFor="let group of testsSpeciaux.controls; let i = index" [formGroupName]="i" class="flex gap-4 items-center">
+                <mat-form-field class="w-1/2">
+                    <mat-label>Nom</mat-label>
+                    <input matInput formControlName="nom">
+                </mat-form-field>
+                <mat-form-field class="w-1/2">
+                    <mat-label>Valeur</mat-label>
+                    <input matInput formControlName="valeur">
+                </mat-form-field>
+                <button mat-icon-button color="warn" (click)="removeEntry(testsSpeciaux, i)">
+          <mat-icon>delete</mat-icon>
+        </button>
+            </div>
+            <button mat-stroked-button color="primary" (click)="addEntry(testsSpeciaux)">Ajouter un test</button>
+        </div>
+    </div>
+
+    <!-- 📷 Radiographies -->
+    <div class="bg-white p-6 rounded-3xl shadow space-y-4 border border-gray-200">
+        <div class="flex items-center gap-3">
+            <div class="p-2 rounded-full shadow-sm bg-yellow-100">
+                <i class="lucide lucide-radiation w-5 h-5 text-yellow-600"></i>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-900">Radiographies</h3>
+        </div>
+
+        <div formArrayName="radiographies" class="space-y-4">
+            <!-- Champ d’ajout -->
+            <div class="flex items-center gap-4">
+                <mat-form-field appearance="fill" class="w-full">
+                    <mat-label>Ajouter une radiographie</mat-label>
+                    <input matInput [formControl]="radioInputControl" (keydown)="addSimpleEntry($event, radioInputControl, radiographies)" placeholder="Ex: Radio thoracique..." />
+                </mat-form-field>
+
+                <button mat-icon-button color="primary" (click)="addEntryFromClick(radioInputControl, radiographies)" [disabled]="!radioInputControl.value?.trim()" class="hover:bg-blue-100 rounded-full">
+        <mat-icon>add</mat-icon>
+      </button>
+            </div>
+
+            <!-- 🔍 Chips de résumé -->
+            <div class="mt-4">
+                <mat-label>Résumé des radiographies</mat-label>
+                <mat-chip-listbox multiple class="w-full">
+                    <ng-container *ngFor="let radio of radiographies.controls; let i = index">
+                        <mat-chip>
+                            {{ radio.value }}
+                            <button matChipRemove [attr.aria-label]="'Supprimer ' + radio.value">✕</button>
+                        </mat-chip>
+                    </ng-container>
+                </mat-chip-listbox>
+            </div>
+        </div>
+
+        <button mat-stroked-button color="primary" (click)="addEntryFromClick(radioInputControl, radiographies)">
+    Ajouter une radiographie
+  </button>
+    </div>
+
+
+    <!-- 🩻 Échographies -->
+    <div class="bg-white p-6 rounded-3xl shadow space-y-4 border border-gray-200 ">
+        <div class="flex items-center gap-3 ">
+            <div class="p-2 rounded-full shadow-sm bg-green-100 ">
+                <i class="lucide lucide-wave-square w-5 h-5 text-green-600 "></i>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-900 ">Échographies</h3>
+        </div>
+        <div formArrayName="echographies" class="space-y-4">
+            <!-- Champ d’ajout -->
+            <div class="flex items-center gap-4">
+                <mat-form-field appearance="fill" class="w-full">
+                    <mat-label>Ajouter une échographie</mat-label>
+                    <input matInput [formControl]="echoInputControl" (keydown)="addSimpleEntry($event, echoInputControl, echographies) " placeholder="Ex: Echographie abdominale normale..." />
+                </mat-form-field>
+
+                <button mat-icon-button color="primary" (click)="addEntryFromClick(echoInputControl, echographies) " [disabled]="!echoInputControl.value?.trim()" class="hover:bg-blue-100 rounded-full">
+                    <mat-icon>add</mat-icon>
+                </button>
+            </div>
+
+            <!-- 🔍 Chips de résumé -->
+            <div class="mt-4">
+                <mat-label>Résumé des échographies</mat-label>
+                <mat-chip-listbox multiple class="w-full">
+                    <ng-container *ngFor="let echographie of echographies.controls; let i = index">
+                        <mat-chip>
+                            {{ echographie.value }}
+                            <button matChipRemove [attr.aria-label]="'Supprimer ' + echographie.value">✕</button>
+                        </mat-chip>
+                    </ng-container>
+                </mat-chip-listbox>
+            </div>
+        </div>
+
+
+        <button mat-stroked-button color="primary " (click)="addEntryFromClick(echoInputControl,echographies) ">Ajouter une radiographie</button>
+    </div>
+
+    <!-- 🧠 IRM -->
+    <div class="bg-white p-6 rounded-3xl shadow space-y-4 border border-gray-200">
+        <div class="flex items-center gap-3">
+            <div class="p-2 rounded-full shadow-sm bg-purple-100">
+                <i class="lucide lucide-brain-cog w-5 h-5 text-purple-600"></i>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-900">IRM</h3>
+        </div>
+
+        <div formArrayName="irm" class="space-y-4">
+            <!-- Champ d’ajout -->
+            <div class="flex items-center gap-4">
+                <mat-form-field appearance="fill" class="w-full">
+                    <mat-label>Ajouter une IRM</mat-label>
+                    <input matInput [formControl]="irmInputControl" (keydown)="addSimpleEntry($event, irmInputControl, irm)" placeholder="Ex: IRM cérébrale..." />
+                </mat-form-field>
+
+                <button mat-icon-button color="primary" (click)="addEntryFromClick(irmInputControl, irm)" [disabled]="!irmInputControl.value?.trim()" class="hover:bg-blue-100 rounded-full">
+        <mat-icon>add</mat-icon>
+      </button>
+            </div>
+
+            <!-- 🔍 Chips de résumé -->
+            <div class="mt-4">
+                <mat-label>Résumé des IRM</mat-label>
+                <mat-chip-listbox multiple class="w-full">
+                    <ng-container *ngFor="let im of irm.controls; let i = index">
+                        <mat-chip>
+                            {{ im.value }}
+                            <button matChipRemove [attr.aria-label]="'Supprimer ' + im.value">✕</button>
+                        </mat-chip>
+                    </ng-container>
+                </mat-chip-listbox>
+            </div>
+        </div>
+
+        <button mat-stroked-button color="primary" (click)="addEntryFromClick(irmInputControl, irm)">
+    Ajouter une IRM
+  </button>
+    </div>
+</div>

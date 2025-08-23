@@ -1,0 +1,183 @@
+<div [formGroup]="form" class="space-y-8 animate-fade-in-up">
+
+    <!-- COMPTE RENDU HOSPITALISATION -->
+    <div *ngIf="currentStep === 'CRH'" [@fadeInOut] formGroupName="compteRenduHospitalisation" class="form-card-3d space-y-4">
+        <h3 class="text-xl font-semibold">Compte Rendu Hospitalisation</h3>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Date admission -->
+            <mat-form-field appearance="fill">
+                <mat-label>Date d'admission</mat-label>
+                <input matInput [matDatepicker]="pickerAdm" formControlName="dateAdmission" />
+                <mat-datepicker-toggle matSuffix [for]="pickerAdm"></mat-datepicker-toggle>
+                <mat-datepicker #pickerAdm></mat-datepicker>
+            </mat-form-field>
+
+            <!-- Date sortie -->
+            <mat-form-field appearance="fill">
+                <mat-label>Date de sortie</mat-label>
+                <input matInput [matDatepicker]="pickerSortie" formControlName="dateSortie" />
+                <mat-datepicker-toggle matSuffix [for]="pickerSortie"></mat-datepicker-toggle>
+                <mat-datepicker #pickerSortie></mat-datepicker>
+            </mat-form-field>
+        </div>
+
+        <!-- Diagnostics Admission -->
+        <mat-form-field class="w-full" appearance="fill">
+            <mat-label>Diagnostics à l’admission</mat-label>
+            <mat-chip-grid #chipListAdmission aria-label="Diagnostics admission">
+                <mat-chip *ngFor="let diag of diagnosticAdmission.value" [removable]="true" (removed)="removeDiagnosticAdmission(diag)">
+                    {{ diag }}
+                    <button matChipRemove><mat-icon>cancel</mat-icon></button>
+                </mat-chip>
+            </mat-chip-grid>
+
+            <input placeholder="Ajouter un diagnostic" [formControl]="diagnosticAdmissionInput" [matAutocomplete]="autoAdmission" [matChipInputFor]="chipListAdmission" [matChipInputSeparatorKeyCodes]="[13,188]" (matChipInputTokenEnd)="addDiagnosticAdmission($event.value)"
+            />
+
+            <mat-autocomplete #autoAdmission="matAutocomplete" (optionSelected)="addDiagnosticAdmission($event.option.value)">
+                <mat-option *ngFor="let option of diagnosticOptions" [value]="option">{{ option }}</mat-option>
+            </mat-autocomplete>
+        </mat-form-field>
+
+        <!-- Diagnostics Sortie -->
+        <mat-form-field class="w-full" appearance="fill">
+            <mat-label>Diagnostics à la sortie</mat-label>
+            <mat-chip-grid #chipListSortie aria-label="Diagnostics sortie">
+                <mat-chip *ngFor="let diag of diagnosticSortie.value" [removable]="true" (removed)="removeDiagnosticSortie(diag)">
+                    {{ diag }}
+                    <button matChipRemove><mat-icon>cancel</mat-icon></button>
+                </mat-chip>
+            </mat-chip-grid>
+
+            <input placeholder="Ajouter un diagnostic" [formControl]="diagnosticSortieInput" [matAutocomplete]="autoSortie" [matChipInputFor]="chipListSortie" [matChipInputSeparatorKeyCodes]="[13,188]" (matChipInputTokenEnd)="addDiagnosticSortie($event.value)" />
+
+            <mat-autocomplete #autoSortie="matAutocomplete" (optionSelected)="addDiagnosticSortie($event.option.value)">
+                <mat-option *ngFor="let option of diagnosticOptions" [value]="option">{{ option }}</mat-option>
+            </mat-autocomplete>
+        </mat-form-field>
+
+        <!-- Examens -->
+        <!-- Examens effectués -->
+        <!-- Examens effectués -->
+        <div class="space-y-4">
+            <h4 class="text-lg font-semibold flex items-center gap-2">
+                <mat-icon color="primary">assignment</mat-icon>
+                Examens effectués
+            </h4>
+
+            <!-- Examens cliniques -->
+            <mat-card class="shadow-md rounded-xl border border-gray-200">
+                <mat-card-header>
+                    <mat-icon mat-card-avatar color="accent">healing</mat-icon>
+                    <mat-card-title>Examens cliniques</mat-card-title>
+                </mat-card-header>
+                <mat-card-content>
+                    <ul class="list-disc list-inside space-y-1">
+                        <li *ngIf="hasExamen('Poids')">
+                            ⚖️ {{ getExamenByKeyword('Poids') }}
+                        </li>
+                        <li *ngIf="hasExamen('Taille')">
+                            📏 {{ getExamenByKeyword('Taille') }}
+                        </li>
+                        <li *ngIf="hasExamen('Tension')">
+                            💓 {{ getExamenByKeyword('Tension') }}
+                        </li>
+                        <li *ngIf="hasExamen('Température')">
+                            🌡️ {{ getExamenByKeyword('Température') }}
+                        </li>
+                        <li *ngIf="hasExamen('Fréquence cardiaque')">
+                            ❤️ {{ getExamenByKeyword('Fréquence cardiaque') }}
+                        </li>
+                        <li *ngIf="hasExamen('Saturation')">
+                            🫁 {{ getExamenByKeyword('Saturation') }}
+                        </li>
+                        <li *ngIf="hasExamen('Observations')">
+                            📝 {{ getExamenByKeyword('Observations') }}
+                        </li>
+                    </ul>
+                </mat-card-content>
+            </mat-card>
+
+            <!-- Examens complémentaires -->
+            <mat-card class="shadow-md rounded-xl border border-gray-200">
+                <mat-card-header>
+                    <mat-icon mat-card-avatar color="primary">biotech</mat-icon>
+                    <mat-card-title>Examens complémentaires</mat-card-title>
+                </mat-card-header>
+                <mat-card-content>
+                    <div *ngFor="let examen of examensEffectues.value">
+                        <ng-container *ngIf="!(
+          examen.includes('Poids') || examen.includes('Taille') || examen.includes('Tension') || 
+          examen.includes('Température') || examen.includes('Fréquence') || examen.includes('Saturation') || 
+          examen.includes('Observations')
+        )">
+                            <mat-chip class="m-1" color="primary" selected>{{ examen }}</mat-chip>
+                        </ng-container>
+                    </div>
+                </mat-card-content>
+            </mat-card>
+        </div>
+
+
+        <!-- Recommandations -->
+        <mat-form-field class="w-full" appearance="fill">
+            <mat-label>Recommandations de sortie</mat-label>
+            <mat-chip-grid #chipListReco aria-label="Recommandations">
+                <mat-chip *ngFor="let reco of recommandationsSortie.value" [removable]="true" (removed)="removeRecommandation(reco)">
+                    {{ reco }}
+                    <button matChipRemove><mat-icon>cancel</mat-icon></button>
+                </mat-chip>
+            </mat-chip-grid>
+
+            <input placeholder="Ajouter une recommandation" [formControl]="recommandationInput" [matChipInputFor]="chipListReco" [matChipInputSeparatorKeyCodes]="[13,188]" (matChipInputTokenEnd)="addRecommandation(recommandationInput.value || '')" />
+        </mat-form-field>
+
+        <div class="flex justify-end mt-4">
+            <button mat-raised-button color="primary" (click)="goToCRO()">Suivant : Compte Rendu Opératoire</button>
+        </div>
+    </div>
+
+    <!-- COMPTE RENDU OPERATOIRE -->
+    <div *ngIf="currentStep === 'CRO'" [@fadeInOut] formGroupName="compteRenduOperatoire" class="form-card-3d space-y-4">
+        <h3 class="text-xl font-semibold">Compte Rendu Opératoire</h3>
+
+        <mat-form-field appearance="fill" class="w-full">
+            <mat-label>Nom de l’intervention</mat-label>
+            <input matInput formControlName="nomIntervention" />
+        </mat-form-field>
+
+        <mat-form-field appearance="fill" class="w-full">
+            <mat-label>Indication opératoire</mat-label>
+            <textarea matInput formControlName="indicationOperatoire" rows="2"></textarea>
+        </mat-form-field>
+
+        <mat-form-field appearance="fill" class="w-full">
+            <mat-label>Description de l’acte</mat-label>
+            <textarea matInput formControlName="descriptionActe" rows="3"></textarea>
+        </mat-form-field>
+
+        <mat-form-field appearance="fill" class="w-full">
+            <mat-label>Conclusion</mat-label>
+            <textarea matInput formControlName="conclusion" rows="2"></textarea>
+        </mat-form-field>
+
+        <!-- Complications -->
+        <mat-form-field class="w-full" appearance="fill">
+            <mat-label>Complications</mat-label>
+            <mat-chip-grid #chipListComp aria-label="Complications">
+                <mat-chip *ngFor="let c of complications.value" [removable]="true" (removed)="removeComplication(c)">
+                    {{ c }}
+                    <button matChipRemove><mat-icon>cancel</mat-icon></button>
+                </mat-chip>
+            </mat-chip-grid>
+
+            <input placeholder="Ajouter une complication" [formControl]="complicationsInput" [matChipInputFor]="chipListComp" [matChipInputSeparatorKeyCodes]="[13,188]" (matChipInputTokenEnd)="addComplication(complicationsInput.value || '')" />
+        </mat-form-field>
+
+        <div class="flex justify-between mt-4">
+            <button mat-stroked-button color="warn" (click)="goBackToCRH()">Retour : CRH</button>
+            <button mat-raised-button color="primary" (click)="submitCRO()">Enregistrer CRO</button>
+        </div>
+    </div>
+</div>

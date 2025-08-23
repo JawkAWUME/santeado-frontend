@@ -1,0 +1,46 @@
+<app-sidebar></app-sidebar>
+
+<div class="pl-72 pr-6 py-6 bg-gradient-to-br from-gray-50 via-white to-gray-100 min-h-screen">
+    <!-- 🗺️ Titre principal -->
+    <h2 class="text-3xl font-extrabold text-gray-800 mb-8 flex items-center gap-3 animate-fade-in">
+        <i class="lucide lucide-map-pin w-8 h-8 text-green-600"></i> Tournée Optimisée
+    </h2>
+
+    <!-- 🔹 Contenu principal -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 animate-fade-in-up">
+        <!-- 📅 Calendrier interactif -->
+        <div class="glass-card rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300">
+            <h3 class="text-xl font-semibold text-gray-700 mb-6 flex items-center gap-3">
+                <i class="lucide lucide-calendar-days w-6 h-6 text-blue-500"></i> Calendrier des Rendez-vous
+            </h3>
+            <div class="calendar-wrapper rounded-xl overflow-hidden border border-gray-200 shadow-inner">
+                <full-calendar [options]="calendarOptions"></full-calendar>
+            </div>
+        </div>
+
+        <!-- 🗺️ Carte Mapbox -->
+        <div class="glass-card rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300">
+            <h3 class="text-xl font-semibold text-gray-700 mb-6 flex items-center gap-3">
+                <i class="lucide lucide-map w-6 h-6 text-green-500"></i> Carte de Tournée
+            </h3>
+            <div #mapContainer class="map-container rounded-xl overflow-hidden border-2 border-gray-200 shadow-inner" style="height: 500px;"></div>
+        </div>
+    </div>
+
+    <!-- 🧭 Résumé de l’itinéraire -->
+    <div class="mt-12 animate-fade-in-up">
+        <h3 class="text-2xl font-bold text-gray-800 mb-4 flex items-center gap-3">
+            <i class="lucide lucide-route w-6 h-6 text-purple-500"></i> Itinéraire Optimisé
+        </h3>
+
+        <div class="glass-card rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 text-gray-700 space-y-3">
+            <ng-container *ngIf="optimizedRoute; else noRoute">
+                <p class="text-lg"><strong>📏 Distance totale :</strong> {{ optimizedRoute.distance | number:'1.1-2' }} km</p>
+                <p class="text-lg"><strong>⏱️ Durée estimée :</strong> {{ optimizedRoute.duration | number:'1.0-0' }} minutes</p>
+            </ng-container>
+            <ng-template #noRoute>
+                <p class="text-sm text-gray-500 italic">Aucune tournée optimisée disponible.</p>
+            </ng-template>
+        </div>
+    </div>
+</div>

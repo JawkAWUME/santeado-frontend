@@ -1,0 +1,117 @@
+<div [formGroup]="form" class="space-y-8 animate-fade-in-up">
+
+    <!-- Signes Vitaux -->
+    <div class="form-card-3d space-y-6">
+        <div class="flex items-center gap-3">
+            <mat-icon class="text-indigo-600 bg-indigo-100 p-2 rounded-full shadow-sm">monitor_heart</mat-icon>
+            <h3 class="text-xl font-semibold text-gray-900">Signes Vitaux</h3>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+            <ng-container *ngFor="let champ of signesVitaux">
+                <mat-form-field appearance="fill" class="w-full">
+                    <mat-label>{{ champ.label }}</mat-label>
+                    <input matInput [type]="champ.type" [formControlName]="champ.control" />
+                </mat-form-field>
+            </ng-container>
+        </div>
+    </div>
+
+    <!-- Bilan Physique -->
+    <div class="form-card-3d space-y-6">
+        <div class="flex items-center gap-3">
+            <mat-icon class="text-emerald-600 bg-emerald-100 p-2 rounded-full shadow-sm">stethoscope</mat-icon>
+            <h3 class="text-xl font-semibold text-gray-900">Bilan Physique</h3>
+        </div>
+
+        <div formArrayName="bilanPhysique" class="space-y-4">
+
+            <!-- Liste dynamique des items -->
+            <!-- Liste dynamique des items - affichage du dernier uniquement -->
+            <!-- Affiche uniquement le dernier élément du FormArray -->
+            <ng-container *ngFor="let bilan of bilanPhysique.controls; let i = index">
+                <div *ngIf="i === bilanPhysique.length - 1" [formGroupName]="i" class="grid grid-cols-1 md:grid-cols-2 gap-4 items-end bg-white p-4 rounded-xl border border-gray-200 shadow">
+
+                    <mat-form-field appearance="fill" class="w-full">
+                        <mat-label>Partie du corps</mat-label>
+                        <input matInput formControlName="partie" placeholder="Ex: Abdomen" />
+                    </mat-form-field>
+
+                    <mat-form-field appearance="fill" class="w-full">
+                        <mat-label>Observation</mat-label>
+                        <input matInput formControlName="observation" placeholder="Ex: Sensibilité à la palpation" />
+                    </mat-form-field>
+
+                    <div class="md:col-span-2 flex justify-end">
+                        <button mat-icon-button color="warn" (click)="removeBilanPhysique(i)" class="hover:bg-red-100 rounded-full">
+        <mat-icon>delete</mat-icon>
+      </button>
+                    </div>
+
+                </div>
+            </ng-container>
+
+
+
+
+            <!-- Bouton d'ajout -->
+            <button mat-stroked-button color="primary" (click)="addBilanPhysique()" class="rounded-xl hover:shadow px-4 py-2">
+    <mat-icon>add</mat-icon> Ajouter un élément
+  </button>
+
+            <!-- 🔍 Chips de résumé -->
+            <div class="mt-4">
+                <mat-label>Résumé du Bilan Physique</mat-label>
+                <mat-chip-listbox multiple class="w-full">
+                    <mat-chip *ngFor="let bilan of bilanPhysique.controls">
+                        {{ bilan.value.partie }} : {{ bilan.value.observation }}
+                    </mat-chip>
+                </mat-chip-listbox>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Observations -->
+    <div class="form-card-3d space-y-6">
+        <div class="flex items-center gap-3">
+            <mat-icon class="text-yellow-600 bg-yellow-100 p-2 rounded-full shadow-sm">visibility</mat-icon>
+            <h3 class="text-xl font-semibold text-gray-900">Observations</h3>
+        </div>
+
+
+        <div formArrayName="observations" class="space-y-4">
+            <!-- Liste des observations -->
+
+
+            <!-- Champ d’ajout -->
+            <div class="flex items-center gap-4">
+                <mat-form-field appearance="fill" class="w-full">
+                    <mat-label>Ajouter une observation</mat-label>
+                    <input matInput [formControl]="chipInputControl" (keydown)="handleObservationInput($event)" placeholder="Ex: Patient fébrile..." />
+                </mat-form-field>
+
+                <button mat-icon-button color="primary" (click)="addObservationFromClick()" [disabled]="!chipInputControl.value?.trim()" class="hover:bg-blue-100 rounded-full">
+                        <mat-icon>add</mat-icon>
+                    </button>
+
+            </div>
+            <!-- 🔍 Chips de résumé -->
+            <div class="mt-4">
+                <mat-label>Résumé des observations </mat-label>
+                <mat-chip-listbox multiple class="w-full">
+                    <ng-container *ngFor="let observation of observations.controls; let i = index">
+                        <mat-chip>
+                            {{ observation.value}}
+                            <button matChipRemove [attr.aria-label]="'Supprimer ' + observation.value">✕</button>
+                        </mat-chip>
+                    </ng-container>
+                </mat-chip-listbox>
+            </div>
+
+
+        </div>
+    </div>
+
+</div>

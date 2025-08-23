@@ -1,0 +1,50 @@
+<h2 mat-dialog-title class="text-xl font-semibold text-gray-900 flex items-center gap-2">
+    <mat-icon class="text-indigo-600 bg-indigo-100 p-2 rounded-full shadow-sm">event_note</mat-icon>
+    Nouvelle Consultation de Suivi
+</h2>
+
+<mat-dialog-content class="space-y-6">
+    <form [formGroup]="form" class="space-y-6 animate-fade-in-up">
+
+        <!-- Carte principale -->
+        <div class="form-card-3d space-y-6">
+            <p class="text-gray-600">Veuillez remplir les informations relatives à la consultation de suivi.</p>
+
+            <!-- Date de consultation -->
+            <mat-form-field appearance="fill" class="w-full">
+                <mat-label>Date de la consultation</mat-label>
+                <input matInput [matDatepicker]="picker" formControlName="date" required />
+                <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                <mat-datepicker #picker></mat-datepicker>
+                <mat-error *ngIf="form.get('date')?.hasError('required')">Date requise</mat-error>
+            </mat-form-field>
+
+            <!-- Médecin -->
+            <mat-form-field appearance="fill" class="w-full">
+                <mat-label>Médecin</mat-label>
+                <input matInput [formControl]="medecinControl" [matAutocomplete]="autoMedecins" placeholder="Rechercher un médecin" required />
+                <mat-autocomplete #autoMedecins="matAutocomplete" [displayWith]="displayMedecin">
+                    <mat-option *ngFor="let medecin of medecins$ | async" [value]="medecin">
+                        {{ medecin.nom }} ({{ medecin.specialite }})
+                    </mat-option>
+                </mat-autocomplete>
+
+                <mat-error *ngIf="form.get('medecin')?.hasError('required')">Médecin requis</mat-error>
+            </mat-form-field>
+
+            <!-- Résumé de la consultation -->
+            <mat-form-field appearance="fill" class="w-full">
+                <mat-label>Résumé de la consultation</mat-label>
+                <textarea matInput formControlName="resume" placeholder="Ex : Suivi de traitement" required rows="3">
+        </textarea>
+                <mat-error *ngIf="form.get('resume')?.hasError('required')">Résumé requis</mat-error>
+            </mat-form-field>
+        </div>
+
+    </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" class="space-x-2">
+    <button mat-stroked-button color="primary" (click)="cancel()">Annuler</button>
+    <button mat-flat-button color="primary" [disabled]="form.invalid" (click)="save()">Ajouter</button>
+</mat-dialog-actions>

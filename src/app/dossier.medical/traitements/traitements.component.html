@@ -1,0 +1,128 @@
+<div [formGroup]="form" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 animate-fade-in-up">
+
+    <!-- 💊 Médicaments Prescrits -->
+    <div class="bg-white p-6 rounded-3xl shadow space-y-4 border border-gray-200 hover:shadow-xl hover:-translate-y-1 duration-300">
+        <div class="flex items-center gap-3">
+            <div class="p-2 rounded-full shadow-sm bg-pink-100">
+                <i class="lucide lucide-pill w-5 h-5 text-pink-600"></i>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-900">Médicaments prescrits</h3>
+        </div>
+
+        <div formArrayName="medicaments" class="space-y-4">
+            <div *ngFor="let med of medicaments.controls; let i = index" [formGroupName]="i" class="space-y-2">
+                <mat-form-field class="w-full">
+                    <mat-label>Nom</mat-label>
+                    <input matInput formControlName="nom">
+                </mat-form-field>
+
+                <div class="flex gap-2">
+                    <mat-form-field class="w-1/2">
+                        <mat-label>Posologie</mat-label>
+                        <input matInput formControlName="posologie">
+                    </mat-form-field>
+
+                    <mat-form-field class="w-1/2">
+                        <mat-label>Voie</mat-label>
+                        <input matInput formControlName="voie">
+                    </mat-form-field>
+                </div>
+
+                <mat-form-field class="w-full">
+                    <mat-label>Durée (en jours)</mat-label>
+                    <input matInput type="number" formControlName="duree">
+                </mat-form-field>
+
+                <mat-form-field class="w-full">
+                    <mat-label>Commentaire</mat-label>
+                    <textarea matInput formControlName="commentaire"></textarea>
+                </mat-form-field>
+
+                <button mat-icon-button color="warn" (click)="removeEntry(medicaments, i)">
+          <mat-icon>delete</mat-icon>
+        </button>
+                <mat-divider></mat-divider>
+            </div>
+
+            <button mat-stroked-button color="primary" (click)="addMedicament()">Ajouter un médicament</button>
+        </div>
+    </div>
+
+    <!-- 🧑‍⚕️ Soins paramédicaux -->
+    <div class="bg-white p-6 rounded-3xl shadow space-y-4 border border-gray-200 hover:shadow-xl hover:-translate-y-1 duration-300">
+        <div class="flex items-center gap-3">
+            <div class="p-2 rounded-full shadow-sm bg-teal-100">
+                <i class="lucide lucide-heart-pulse w-5 h-5 text-teal-600"></i>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-900">Soins paramédicaux</h3>
+        </div>
+
+        <div formArrayName="soinsParamedicaux" class="space-y-4">
+            <div *ngFor="let soin of soinsParamedicaux.controls; let i = index" [formGroupName]="i" class="space-y-2">
+                <mat-form-field class="w-full">
+                    <mat-label>Type de soin</mat-label>
+                    <input matInput formControlName="typeSoin">
+                </mat-form-field>
+
+                <mat-form-field class="w-full">
+                    <mat-label>Fréquence</mat-label>
+                    <input matInput formControlName="frequence">
+                </mat-form-field>
+
+                <mat-form-field class="w-full">
+                    <mat-label>Commentaire</mat-label>
+                    <textarea matInput formControlName="commentaire"></textarea>
+                </mat-form-field>
+
+                <button mat-icon-button color="warn" (click)="removeEntry(soinsParamedicaux, i)">
+          <mat-icon>delete</mat-icon>
+        </button>
+                <mat-divider></mat-divider>
+            </div>
+
+            <button mat-stroked-button color="primary" (click)="addSoin()">Ajouter un soin</button>
+        </div>
+    </div>
+
+    <!-- 🏥 Interventions chirurgicales -->
+    <div class="bg-white p-6 rounded-3xl shadow space-y-4 border border-gray-200 hover:shadow-xl hover:-translate-y-1 duration-300">
+        <div class="flex items-center gap-3">
+            <div class="p-2 rounded-full shadow-sm bg-indigo-100">
+                <i class="lucide lucide-scalpel w-5 h-5 text-indigo-600"></i>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-900">Interventions chirurgicales</h3>
+        </div>
+
+        <div formArrayName="interventions" class="space-y-4">
+            <div *ngFor="let inter of interventions.controls; let i = index" [formGroupName]="i" class="space-y-2">
+                <mat-form-field class="w-full">
+                    <mat-label>Nom</mat-label>
+                    <input matInput formControlName="nom">
+                </mat-form-field>
+
+                <mat-form-field class="w-full">
+                    <mat-label>Date prévue</mat-label>
+                    <input matInput formControlName="datePrevue" type="date">
+                </mat-form-field>
+
+                <mat-form-field class="w-full">
+                    <mat-label>Objectif</mat-label>
+                    <input matInput formControlName="objectif">
+                </mat-form-field>
+
+                <mat-form-field class="w-full">
+                    <mat-label>Commentaire</mat-label>
+                    <textarea matInput formControlName="commentaire"></textarea>
+                </mat-form-field>
+
+                <button mat-icon-button color="warn" (click)="removeEntry(interventions, i)">
+          <mat-icon>delete</mat-icon>
+        </button>
+                <mat-divider></mat-divider>
+            </div>
+
+            <button mat-stroked-button color="primary" (click)="addIntervention()">Ajouter une intervention</button>
+        </div>
+    </div>
+
+</div>

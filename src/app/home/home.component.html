@@ -1,0 +1,92 @@
+<app-sidebar></app-sidebar>
+
+<div class="main-container ml-72 p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+    <!-- Formulaire amélioré -->
+    <div class="form-container glass-card p-8 rounded-2xl shadow-lg border border-gray-200 space-y-6">
+        <h2 class="form-title text-2xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+            <i class="bi bi-calendar2-check text-green-600 text-3xl"></i> Prise de rendez-vous
+        </h2>
+
+        <!-- Champ Adresse -->
+        <div class="input-group">
+            <label for="adresse" class="input-label">Adresse</label>
+            <div class="input-wrapper">
+                <i class="bi bi-geo-alt text-gray-500"></i>
+                <input id="adresse" type="text" [(ngModel)]="searchQuery" (keyup.enter)="searchLocation()" placeholder="Adresse détectée ou saisissez une adresse..." />
+            </div>
+            <p class="hint-text">Modifiez l’adresse et appuyez sur Entrée pour rechercher.</p>
+        </div>
+
+        <!-- Spécialité -->
+        <div class="input-group">
+            <label for="specialite" class="input-label">Spécialité</label>
+            <div class="input-wrapper">
+                <i class="bi bi-heart-pulse text-gray-500"></i>
+                <select id="specialite" [(ngModel)]="selectedSpecialite" (change)="search()">
+          <option value="">-- Choisir une spécialité --</option>
+          <option *ngFor="let s of specialites" [value]="s">{{ s }}</option>
+        </select>
+            </div>
+        </div>
+
+        <!-- Tarif Max -->
+        <div class="input-group">
+            <label for="tarif" class="input-label">Tarif maximum (XOF)</label>
+            <div class="input-wrapper">
+                <i class="bi bi-cash-stack text-gray-500"></i>
+                <input type="number" id="tarif" [(ngModel)]="tarifMax" (change)="search()" />
+            </div>
+        </div>
+
+        <!-- Rayon -->
+        <div class="input-group">
+            <label for="rayon" class="input-label">Rayon (km)</label>
+            <div class="input-wrapper">
+                <i class="bi bi-arrows-expand text-gray-500"></i>
+                <input type="number" id="rayon" [(ngModel)]="rayonKm" (change)="search()" />
+            </div>
+        </div>
+
+        <!-- Professionnel -->
+        <div class="input-group">
+            <label for="pro" class="input-label">Professionnel</label>
+            <div class="input-wrapper">
+                <i class="bi bi-person-badge text-gray-500"></i>
+                <select id="pro" [(ngModel)]="selectedPro" (change)="onProSelected()">
+          <option [ngValue]="null">-- Choisir un professionnel --</option>
+          <option *ngFor="let pro of filteredPros" [ngValue]="pro">{{ pro.nom }} — {{ pro.specialite }}</option>
+        </select>
+            </div>
+        </div>
+
+        <!-- Date -->
+        <div class="input-group">
+            <label for="date" class="input-label">Date</label>
+            <div class="input-wrapper">
+                <i class="bi bi-calendar-event text-gray-500"></i>
+                <input type="date" id="date" [(ngModel)]="rendezVousDate" (change)="onDateSelected()" />
+            </div>
+        </div>
+
+        <!-- Créneaux -->
+        <div class="input-group" *ngIf="creneauxDisponibles.length > 0">
+            <label for="creneau" class="input-label">Créneau disponible</label>
+            <div class="input-wrapper">
+                <i class="bi bi-clock text-gray-500"></i>
+                <select id="creneau" [(ngModel)]="selectedCreneau">
+          <option *ngFor="let c of creneauxDisponibles" [value]="c">{{ c | date: 'shortTime' }}</option>
+        </select>
+            </div>
+        </div>
+
+        <!-- Bouton -->
+        <button (click)="prendreRendezVous()" class="btn-primary w-full">
+      <i class="bi bi-check2-circle"></i> Prendre rendez-vous
+    </button>
+    </div>
+
+    <!-- Carte -->
+    <div>
+        <div id="map" class="map-card rounded-xl shadow-lg"></div>
+    </div>
+</div>

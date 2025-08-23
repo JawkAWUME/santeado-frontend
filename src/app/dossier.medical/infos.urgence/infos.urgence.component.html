@@ -1,0 +1,62 @@
+<form [formGroup]="form">
+    <div class="form-card-3d space-y-6">
+        <!-- En‑tête -->
+        <div class="flex items-center gap-3">
+            <mat-icon class="text-[#058789] bg-[#058789]/10 p-2 rounded-full shadow">person</mat-icon>
+            <h3 class="text-xl font-semibold text-gray-900">
+                Infos personnelles & Contact d'urgence
+            </h3>
+        </div>
+
+        <!-- Champs -->
+        <div class="space-y-4">
+            <mat-form-field appearance="fill" class="w-full" [color]="form.get('personneUrgence')?.invalid && (form.get('personneUrgence')?.touched || form.get('personneUrgence')?.dirty) ? 'warn' : 'primary'">
+                <mat-label>Contact d'urgence *</mat-label>
+                <input matInput formControlName="personneUrgence" placeholder="Nom et prénom" required />
+                <mat-error *ngIf="form.get('personneUrgence')?.hasError('required')">
+                    Le nom du contact d'urgence est requis.
+                </mat-error>
+            </mat-form-field>
+
+            <!-- Couverture sociale -->
+            <mat-form-field appearance="fill" class="w-full" [color]="
+        form.get('couvertureSociale')?.invalid &&
+        (form.get('couvertureSociale')?.touched || form.get('couvertureSociale')?.dirty)
+          ? 'warn'
+          : 'primary'
+      ">
+                <mat-label>Couverture Sociale *</mat-label>
+                <input matInput formControlName="couvertureSociale" placeholder="Ex: CNSS, RAMED, etc." required />
+                <mat-error *ngIf="form.get('couvertureSociale')?.hasError('required')">
+                    La couverture sociale est requise.
+                </mat-error>
+            </mat-form-field>
+
+            <!-- Indicatif + Téléphone -->
+            <div class="flex items-center gap-2">
+                <mat-form-field appearance="fill" class="w-1/4 mr-2">
+                    <mat-label>Indicatif</mat-label>
+                    <mat-select formControlName="indicatifUrgence" required>
+                        <mat-option *ngFor="let code of countryCallingCodes" [value]="code.code">
+                            {{ code.name }} ({{ code.code }})
+                        </mat-option>
+                    </mat-select>
+                    <mat-error *ngIf="form.get('indicatifUrgence')?.hasError('required')">
+                        Sélectionnez un indicatif.
+                    </mat-error>
+                </mat-form-field>
+
+                <mat-form-field appearance="fill" class="w-3/4">
+                    <mat-label>Téléphone de la personne *</mat-label>
+                    <input matInput type="tel" formControlName="telPersonneUrgence" placeholder="+33XXXXXXXXX" required />
+                    <mat-error *ngIf="form.get('telPersonneUrgence')?.hasError('required')">
+                        Le téléphone est requis.
+                    </mat-error>
+                    <mat-error *ngIf="form.get('telPersonneUrgence')?.hasError('invalidPhone')">
+                        Format de téléphone invalide.
+                    </mat-error>
+                </mat-form-field>
+            </div>
+        </div>
+    </div>
+</form>

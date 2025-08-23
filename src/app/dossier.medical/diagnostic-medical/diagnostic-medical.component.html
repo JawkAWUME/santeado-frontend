@@ -1,0 +1,83 @@
+<div [formGroup]="form" class="space-y-8 animate-fade-in-up">
+
+    <div class="form-card-3d space-y-6">
+        <div class="flex items-center gap-3">
+            <mat-icon class="text-indigo-600 bg-indigo-100 p-2 rounded-full shadow-sm">diagnosis</mat-icon>
+            <h3 class="text-xl font-semibold text-gray-900">Diagnostic Médical</h3>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Diagnostic principal -->
+            <mat-form-field appearance="fill" class="w-full">
+                <mat-label>Diagnostic principal</mat-label>
+                <input matInput placeholder="Ex : Pneumonie" formControlName="diagnosticPrincipal" required />
+                <mat-error *ngIf="form.get('diagnosticPrincipal')?.hasError('required')">
+                    Diagnostic principal requis
+                </mat-error>
+            </mat-form-field>
+
+            <!-- Code ICD avec autocomplétion -->
+            <mat-form-field appearance="fill" class="w-full">
+                <mat-label>Code principal (ICD)</mat-label>
+                <input type="text" matInput formControlName="codePrincipal" [matAutocomplete]="auto" placeholder="Ex : A00 - Choléra" />
+                <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selectCode($event.option.value)">
+                    <mat-option *ngFor="let code of (filteredCodes$ | async)" [value]="code">
+                        <div class="flex flex-col">
+                            <span class="font-semibold">{{ code.code }} - {{ code.title }}</span>
+                            <small class="text-gray-500 truncate">{{ code.description }}</small>
+                        </div>
+                    </mat-option>
+                </mat-autocomplete>
+            </mat-form-field>
+
+            <!-- Système de codification -->
+
+        </div>
+
+        <mat-form-field appearance="fill" class="w-full">
+            <mat-label>Système de codification</mat-label>
+            <mat-select formControlName="systemeCodification" required>
+                <mat-option value="ICD-10">ICD-10</mat-option>
+                <mat-option value="ICD-11">ICD-11</mat-option>
+                <mat-option value="CIM">CIM</mat-option>
+            </mat-select>
+            <mat-error *ngIf="form.get('systemeCodification')?.hasError('required')">
+                Système requis
+            </mat-error>
+        </mat-form-field>
+        <p class="text-gray-600">Veuillez remplir les informations suivantes pour le diagnostic médical.</p>
+    </div>
+
+
+
+
+    <!-- Ajout diagnostic secondaire -->
+    <div class="form-card-3d space-y-6">
+        <div class="flex items-center gap-3">
+            <h3 class="text-lg font-semibold mb-2">Diagnostics secondaires</h3>
+        </div>
+        <!-- Champ unique pour saisir un diagnostic secondaire -->
+        <div class="flex items-center gap-2 mb-4">
+            <mat-form-field class="w-full" appearance="fill">
+                <mat-label>Ajouter un diagnostic secondaire</mat-label>
+                <input matInput [formControl]="secondaryControl" placeholder="Ex : Hypertension" />
+            </mat-form-field>
+            <button mat-icon-button color="primary" type="button" (click)="addSecondary()" [disabled]="!secondaryControl.value?.trim()" class="hover:bg-blue-100 rounded-full">
+                <mat-icon>add</mat-icon>
+            </button>
+        </div>
+        <!-- Liste des diagnostics secondaires ajoutés -->
+        <div class="mt-3 space-y-2">
+            <mat-label>Résumé des diagnostics secondaires</mat-label>
+            <mat-chip-listbox multiple class="w-full">
+                <ng-container *ngFor="let ctrl of diagnosticsSecondaires.controls; let i = index">
+                    <mat-chip [value]="ctrl.value" selected [removable]="true" (removed)="removeSecondary(i)">
+                        {{ ctrl.value }}
+                        <button matChipRemove [attr.aria-label]="'Supprimer ' + ctrl.value">✕</button>
+                    </mat-chip>
+
+                </ng-container>
+            </mat-chip-listbox>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,68 @@
+<div class="container-scroller">
+    <!-- Theme toggle button -->
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">🌓</button>
+
+    <!-- Left panel with SVG illustration -->
+    <div class="left-panel animate__animated animate__slideInLeft" aria-hidden="true">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512" fill="white" aria-hidden="true" focusable="false">
+        <path d="M320 32C192 32 96 128 96 256s96 224 224 224 224-96 224-224S448 32 320 32zm0 384c-88.22 0-160-71.78-160-160S231.78 96 320 96s160 71.78 160 160-71.78 160-160 160z"/>
+      </svg>
+    </div>
+
+    <!-- Right panel with login form -->
+    <div class="right-panel d-flex align-items-center justify-content-center p-0" style="height: 100vh; width: 100%;">
+      <div class="auth-panel animate__animated animate__fadeInUp" role="main" aria-label="Login form">
+        <div class="text-center mb-4">
+          <img src="../../assets/images/logo.svg" alt="Logo" height="48" />
+        </div>
+        <h4 class="text-center mb-2">Welcome back!</h4>
+        <h6 class="fw-light text-center mb-4">Sign in to continue</h6>
+
+        <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="w-100" 
+               style="max-width: 500px; margin: 0 auto;" novalidate>
+          <div class="mb-3">
+            <input
+              type="email"
+              class="form-control form-control-lg"
+              placeholder="Email"
+              required
+              aria-label="Email"
+              formControlName="email"
+            />
+          </div>
+          <div class="mb-3">
+            <input
+              formControlName="motDePasse"
+              type="password"
+              class="form-control form-control-lg"
+              placeholder="Mot De Passe"
+              required
+              aria-label="Password"
+            />
+          </div>
+          <div class="mb-3 d-flex justify-content-between align-items-center">
+            <div class="form-check">
+              <input
+                type="checkbox"
+                class="form-check-input"
+                id="keepSignedIn"
+              />
+              <label class="form-check-label text-muted" for="keepSignedIn">
+                Keep me signed in
+              </label>
+            </div>
+            <a routerLink="/" class="text-accent small">Forgot password?</a>
+          </div>
+          <div class="d-grid mb-3">
+            <button type="submit" class="btn btn-primary btn-lg">Sign In</button>
+          </div>
+          <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
+          <div class="text-center mt-3">
+            <span class="text-muted">Don't have an account?</span>
+            <a routerLink="/register" class="text-accent fw-semibold">Create</a>
+          </div>
+        </form>
+      </div>
+    </div>
+</div>
+

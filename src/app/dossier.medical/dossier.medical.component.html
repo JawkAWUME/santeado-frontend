@@ -1,0 +1,67 @@
+<div class="stepper-container">
+
+    <!-- Navigation rapide entre étapes -->
+
+
+    <!-- Stepper principal -->
+    <mat-horizontal-stepper [linear]="true" [selectedIndex]="visibleActiveIndex" class="custom-stepper">
+        <ng-container *ngFor="let step of visibleSteps; let i = index">
+            <mat-step [stepControl]="step.form" [attr.data-icon]="getStepUnicode(step.key)" [ngClass]="{ 'active-step': activeStepIndex === (currentIndex + i) }">
+                <form [formGroup]="step.form" [@stepContentAnimation]>
+
+                    <!-- HEADER AVEC ICÔNE ET LABEL -->
+                    <ng-template matStepLabel>
+                        <div class="step-label-container flex items-center gap-2">
+                            <!-- Icône dans le cercle (gérée via CSS et data-icon) -->
+                            <!-- Icône visuelle supplémentaire à côté du texte (optionnel) -->
+                            <i [ngClass]="getStepIcon(step.key)" class="bi text-lg"></i>
+
+                            <!-- Texte -->
+                            <div class="step-text-box">
+                                <span class="step-title">{{ (currentIndex + i + 1) + '. ' + step.title }}</span>
+                                <span class="step-subtitle">{{ step.subtitle }}</span>
+                            </div>
+                        </div>
+                    </ng-template>
+
+                    <!-- CONTENU DU STEP -->
+                    <div class="form-card-3d space-y-6">
+                        <ng-container [ngSwitch]="step.key">
+                            <app-infos-urgence *ngSwitchCase="'infos'" [form]="step.form" [countryCallingCodes]="countryCallingCodes"></app-infos-urgence>
+                            <app-antecedents-form *ngSwitchCase="'antecedents'" [form]="step.form"></app-antecedents-form>
+                            <app-examen-clinique-form *ngSwitchCase="'examenClinique'" [form]="step.form"></app-examen-clinique-form>
+                            <app-examens-complementaires *ngSwitchCase="'examensComplementaires'" [form]="step.form"></app-examens-complementaires>
+                            <app-traitements *ngSwitchCase="'traitements'" [form]="step.form"></app-traitements>
+                            <app-diagnostic-medical *ngSwitchCase="'diagnosticMedical'" [form]="step.form"></app-diagnostic-medical>
+                            <app-evolution-suivi *ngSwitchCase="'evolutionSuivi'" [form]="step.form"></app-evolution-suivi>
+                            <app-correspondances *ngSwitchCase="'correspondances'" [form]="step.form"></app-correspondances>
+
+                        </ng-container>
+                    </div>
+
+                    <!-- BOUTONS -->
+                    <div class="flex justify-between pt-6 gap-4">
+                        <button type="button" class="px-6 py-2 rounded-xl" mat-stroked-button color="primary" (click)="previousStep()" [disabled]="activeStepIndex === 0">
+              Précédent
+            </button>
+                        <div class="flex gap-4">
+                            <button type="button" mat-raised-button color="primary" (click)="nextStep()">
+                {{ activeStepIndex === steps.length - 1 ? 'Terminer' : 'Suivant' }}
+              </button>
+                            <button type="button" mat-stroked-button color="primary" class="px-6 py-2 rounded-xl" (click)="savePartial()" [disabled]="step.form.invalid">
+                Enregistrer
+              </button>
+                        </div>
+                    </div>
+                </form>
+            </mat-step>
+        </ng-container>
+    </mat-horizontal-stepper>
+
+    <!-- Bouton Réinitialiser -->
+    <div class="mt-6">
+        <button mat-stroked-button color="warn" (click)="resetStepper()">
+      Réinitialiser le dossier
+    </button>
+    </div>
+</div>
