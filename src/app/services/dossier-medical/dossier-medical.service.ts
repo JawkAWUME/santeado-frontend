@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { DossierMedical } from '../../interfaces/dossier.medical';
@@ -19,8 +19,29 @@ export class DossierMedicalService {
 
   constructor(private http: HttpClient) {}
 
-  getDossierByPatientId(patientId: number) : Observable<DossierMedical> {
-    return this.http.get<DossierMedical>(`${this.baseUrl}/patient/${patientId}`);
+  getDossierByPatientId(patientId: number) : Observable<DossierMedical[]> {
+    return this.http.get<DossierMedical[]>(`${this.baseUrl}/patient/${patientId}`);
+  }
+
+  getDossierById(dossierId: number) : Observable<DossierMedical[]> {
+    return this.http.get<DossierMedical[]>(`${this.baseUrl}/${dossierId}`);
+  }
+
+  getDossiers(): Observable<DossierMedical[]> {
+    return this.http.get<DossierMedical[]>(`${this.baseUrl}/all`);
+  }
+
+  getMesDossiers(): Observable<DossierMedical[]> {
+    return this.http.get<DossierMedical[]>(`${this.baseUrl}/mes-dossiers`);
+  }
+
+  searchDossiers(patientId?: number, filterDate?: string, patientName?: string): Observable<any[]> {
+    let params = new HttpParams();
+    if (patientId) params = params.set('patientId', patientId.toString());
+    if (filterDate) params = params.set('filterDate', filterDate);
+    if (patientName) params = params.set('patientName', patientName);
+
+    return this.http.get<any[]>(`${this.baseUrl}/search`, { params });
   }
 
   creerDossier(patientId: number): Observable<DossierMedical> {
@@ -59,5 +80,12 @@ export class DossierMedicalService {
     return this.http.put<void>(`${this.baseUrl}/${patientId}/correspondances`, correspondances);
   }
 
+  generateFiche(dossierId: number): Observable<Blob> {
+  return this.http.get(`${this.baseUrl}/fiche/${dossierId}`, {
+    responseType: 'blob' // important : on reçoit un fichier binaire
+  });
+}
 
+  
+ 
 }

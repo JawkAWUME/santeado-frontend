@@ -23,6 +23,7 @@ import { CorrespondancesComponent } from "./correspondances/correspondances.comp
 import { TraitementPrescription } from '../interfaces/traitement-prescription';
 import { EvolutionSuivi } from '../interfaces/evolution-suivi';
 import { DiagnosticMedical } from '../interfaces/diagnostic.medical';
+import { catchError, map, of, switchMap } from 'rxjs';
 
 @Component({
   selector: 'app-dossier.medical',
@@ -188,18 +189,29 @@ export class DossierMedicalComponent implements OnInit {
     });
 
     // Charger dossier patient
-    this.dossierService.getDossierByPatientId(3).subscribe({
-      next: (dossier) => {
-        this.dossierMedical = dossier;
-        this.patchForm(dossier);
-        this.setupPhoneValidation();
-      },
-      error: () => {
-        this.dossierService.creerDossier(3).subscribe(newDossier => {
+    this.dossierService.getDossierByPatientId(3).pipe(
+  map(dossiers => dossiers.length > 0 ? dossiers[dossiers.length - 1] : null),
+  switchMap(dossier => {
+    if (dossier) {
+      this.dossierMedical = dossier;
+      this.patchForm(dossier);
+      this.setupPhoneValidation();
+      return of(dossier); // on renvoie un observable du dossier trouvé
+    } else {
+      // aucun dossier → on en crée un
+      return this.dossierService.creerDossier(3).pipe(
+        map(newDossier => {
           this.dossierMedical = newDossier;
-        });
-      },
-    });
+          return newDossier;
+        })
+      );
+    }
+  }),
+  catchError(err => {
+    console.error("Erreur lors de la récupération/creation du dossier :", err);
+    return of(null);
+  })
+).subscribe();
 
     // Revalidation dynamique
     this.infosForm.get('indicatifUrgence')?.valueChanges.subscribe(() => this.setupPhoneValidation());

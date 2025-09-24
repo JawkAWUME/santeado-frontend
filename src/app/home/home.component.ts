@@ -3,10 +3,11 @@ import mapboxgl from 'mapbox-gl';
 import { SidebarComponent } from "../shared/sidebar/sidebar.component";
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ProSanteService } from '../services/pro-sante.service';
+import { ProSanteService } from '../services/pro-sante/pro-sante.service';
 import { ProSante } from '../interfaces/pro-sante';
 import { RendezVousService } from '../services/rdv/rendez-vous.service';
 import { RendezVous } from '../interfaces/rendez-vous';
+import { AuthService } from '../services/auth/auth.service';
 
 @Component({
   selector: 'app-home',
@@ -36,7 +37,8 @@ export class HomeComponent implements AfterViewInit {
 
   constructor(
     private proSanteService: ProSanteService,
-    private rendezVousService: RendezVousService
+    private rendezVousService: RendezVousService,
+    private authService: AuthService
   ) {}
 
   ngAfterViewInit(): void {
@@ -50,9 +52,9 @@ export class HomeComponent implements AfterViewInit {
           this.latitude = position.coords.latitude;
           this.longitude = position.coords.longitude;
 
-          this.initMap(); // Initialise la carte avec la position détectée
-          this.reverseGeocode(this.longitude, this.latitude); // Mets à jour searchQuery
-          this.search(); // Recherche avec ces coordonnées
+          this.initMap();
+          this.reverseGeocode(this.longitude, this.latitude);
+          this.search();
 
           // Suivi en temps réel
           navigator.geolocation.watchPosition(
@@ -95,7 +97,7 @@ export class HomeComponent implements AfterViewInit {
       zoom: 12
     });
 
-    this.marker = new mapboxgl.Marker({ color: 'blue' , draggable: true })
+    this.marker = new mapboxgl.Marker({ color: 'blue', draggable: true })
       .setLngLat([this.longitude, this.latitude])
       .addTo(this.map);
 
@@ -104,10 +106,8 @@ export class HomeComponent implements AfterViewInit {
       this.longitude = lngLat.lng;
       this.latitude = lngLat.lat;
       this.reverseGeocode(this.longitude, this.latitude);
-      this.search(); // Recherche après le déplacement du marker
+      this.search();
     });
-
-    
   }
 
   reverseGeocode(lon: number, lat: number): void {
@@ -127,7 +127,7 @@ export class HomeComponent implements AfterViewInit {
   }
 
   searchLocation(): void {
-    this.search(); // recherche manuelle par adresse
+    this.search();
   }
 
   search(): void {
@@ -139,13 +139,18 @@ export class HomeComponent implements AfterViewInit {
       rayonKm: this.rayonKm
     };
 
-    this.proSanteService.rechercherPro(criteres).subscribe((pros) => {
-      this.pros = pros;
+    this.proSanteService.rechercherPro(criteres).subscribe((pros: ProSante[] | null) => {
+      this.pros = pros ?? [];
       this.filtrerDisponibles();
     });
   }
 
   filtrerDisponibles(): void {
+    if (!this.pros || this.pros.length === 0) {
+      this.filteredPros = [];
+      return;
+    }
+
     if (!this.rendezVousDate) {
       this.filteredPros = [...this.pros];
       return;
@@ -183,19 +188,38 @@ export class HomeComponent implements AfterViewInit {
     if (!this.selectedPro || !this.rendezVousDate) return;
 
     this.rendezVousService.getCreneauxDisponibles(this.selectedPro.id!, this.rendezVousDate).subscribe((data: any) => {
-      this.creneauxDisponibles = data;
+      this.creneauxDisponibles = Array.isArray(data) ? data : [];
     });
   }
 
   prendreRendezVous(): void {
-    if (!this.selectedPro || !this.selectedCreneau || !this.rendezVousDate) return;
+    if (!this.selectedPro || !this.selectedCreneau || !this.rendezVousDate) {
+      alert("Veuillez sélectionner un praticien, une date et un créneau.");
+      return;
+    }
+
+    const currentUser = this.authService.getCurrentUser();
+
+    // const dateStr = `${this.rendezVousDate}T${this.selectedCreneau}`;
+
+    console.log(this.selectedCreneau);
+    console.log(this.selectedPro);
+    // Validation de la date
+    const dateObj = new Date(this.selectedCreneau);
+
+    // if (isNaN(dateObj.getTime())) {
+    //   console.log(dateObj.getTime());
+    //   alert("La date ou le créneau est invalide.");
+    //   return;
+    // }
 
     const rdv: RendezVous = {
       proSante: this.selectedPro,
-      dateHeure: new Date(`${this.rendezVousDate}T${this.selectedCreneau}`).toISOString(),
+      patient: this.authService.getUser(), // Le patient sera déterminé côté backend via le token
+      dateHeure: dateObj.toISOString(),
       statut: 'EN_ATTENTE',
     };
-
+    console.log(rdv, this.authService.getUser());
     this.rendezVousService.creerRendezVous(rdv).subscribe(() => {
       alert('Rendez-vous confirmé !');
       this.creneauxDisponibles = [];

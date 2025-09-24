@@ -1,0 +1,88 @@
+<app-sidebar></app-sidebar>
+
+<div class="main-container ml-72 p-8 grid grid-cols-1 lg:grid-cols-2 gap-10">
+
+    <!-- 💳 Paiement -->
+    <div class="card payment-card">
+        <!-- Titre -->
+        <div class="card-header">
+            <i class="bi bi-credit-card-2-front icon-title"></i>
+            <h2>Paiement sécurisé</h2>
+        </div>
+
+        <!-- Montant -->
+        <div class="form-group">
+            <label>Montant à payer (XOF)</label>
+            <div class="input-wrapper">
+                <i class="bi bi-cash-stack"></i>
+                <input type="number" [value]="montant" readonly />
+            </div>
+        </div>
+
+        <!-- Méthode de paiement -->
+        <div class="form-group">
+            <label>Méthode de paiement</label>
+            <div class="payment-methods">
+                <button class="method-btn" [class.active]="selectedMethode === 'WAVE'" (click)="selectedMethode='WAVE'">
+          <i class="bi bi-phone"></i> Wave
+        </button>
+                <button class="method-btn" [class.active]="selectedMethode === 'ORANGE'" (click)="selectedMethode='ORANGE'">
+          <i class="bi bi-wallet2"></i> Orange Money
+        </button>
+            </div>
+        </div>
+
+        <!-- Bouton payer -->
+        <button class="btn-primary" [disabled]="isProcessing" (click)="payer()">
+      <i class="bi bi-check2-circle"></i>
+      {{ isProcessing ? 'Traitement...' : 'Payer maintenant' }}
+    </button>
+
+        <!-- Statut -->
+        <div *ngIf="paiementStatus" class="payment-status" [ngClass]="{
+           'success': paiementStatus === 'SUCCES',
+           'error': paiementStatus === 'ECHEC',
+           'pending': paiementStatus === 'EN_ATTENTE'
+         }">
+            Statut : {{ paiementStatus }}
+        </div>
+
+        <!-- Détails du paiement -->
+        <div *ngIf="paiementDetails" class="details-card">
+            <h3>Détails du paiement</h3>
+            <ul>
+                <li><strong>ID Paiement :</strong> {{ paiementDetails.id }}</li>
+                <li><strong>Méthode :</strong> {{ paiementDetails.methode }}</li>
+                <li><strong>Montant :</strong> {{ paiementDetails.montant | number:'1.0-0' }} XOF</li>
+                <li><strong>Statut :</strong> {{ paiementDetails.statut }}</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- 📄 Factures -->
+    <div class="card invoice-card">
+        <!-- Titre -->
+        <div class="card-header">
+            <i class="bi bi-file-earmark-text icon-title"></i>
+            <h2>Factures & Historique</h2>
+        </div>
+
+        <!-- Liste -->
+        <div *ngIf="(factures?.length ?? 0) > 0; else noFactures" class="facture-list">
+            <div *ngFor="let f of factures" class="facture-item">
+                <div class="facture-info">
+                    <p>#{{ f.id }} — {{ f.dateCreation | date:'short' }}</p>
+                </div>
+                <button class="btn-secondary">
+          <i class="bi bi-download"></i> PDF
+        </button>
+            </div>
+        </div>
+
+        <!-- Aucune facture -->
+        <ng-template #noFactures>
+            <p class="empty-state">Aucune facture disponible pour ce patient.</p>
+        </ng-template>
+    </div>
+
+</div>

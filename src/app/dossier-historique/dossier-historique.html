@@ -1,0 +1,110 @@
+<app-sidebar></app-sidebar>
+
+<div class="main-container ml-72 p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+    <!-- Formulaire / filtres -->
+    <div class="form-container glass-card p-6 rounded-2xl shadow-lg border border-gray-200 space-y-6">
+        <h2 class="form-title text-2xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+            <i class="bi bi-journal-medical text-blue-600 text-3xl"></i> Historique des dossiers
+        </h2>
+
+        <!-- Patient (texte libre) -->
+        <div class="input-group">
+            <label class="input-label">Recherche par patient</label>
+            <div class="input-wrapper">
+                <i class="bi bi-person"></i>
+                <input type="text" placeholder="Nom du patient" [(ngModel)]="searchPatient" (keyup.enter)="search()" />
+            </div>
+        </div>
+
+        <!-- Date -->
+        <div class="input-group">
+            <label class="input-label">Date de création</label>
+            <div class="input-wrapper">
+                <i class="bi bi-calendar-event"></i>
+                <input type="date" [(ngModel)]="filterDate" (change)="search()" />
+            </div>
+        </div>
+
+        <!-- Patient spécifique (si PRO_SANTE) -->
+        <div class="input-group" *ngIf="userRole === 'PROFESSIONNEL_SANTE'">
+            <label class="input-label">Patient spécifique</label>
+            <div class="input-wrapper">
+                <ng-select [items]="patients" bindLabel="nom" bindValue="id" placeholder="Choisir un patient" [(ngModel)]="selectedPatient" (change)="search()" class="custom-ng-select">
+                    <ng-template ng-label-tmp let-item="item">
+                        {{ item.nom }} {{ item.prenom }}
+                    </ng-template>
+                    <ng-template ng-option-tmp let-item="item">
+                        {{ item.nom }} — {{ item.prenom }}
+                    </ng-template>
+                </ng-select>
+            </div>
+        </div>
+
+        <!-- Boutons -->
+        <div class="flex gap-3 pt-4">
+            <button class="btn-primary flex-1" (click)="search()">
+                <i class="bi bi-search"></i> Rechercher
+            </button>
+            <button class="btn-secondary flex-1">
+                <i class="bi bi-arrow-counterclockwise"></i> Réinitialiser
+            </button>
+        </div>
+    </div>
+
+    <!-- Liste des dossiers -->
+    <div class="dossiers-container col-span-2 space-y-5">
+        <ng-container *ngIf="(dossiers?.length ?? 0) > 0; else noDossiers">
+            <div *ngFor="let dossier of dossiers" class="dossier-card glass-card p-5 rounded-xl border border-gray-200 hover:shadow-2xl transition-all duration-300">
+                <div class="flex justify-between items-start">
+                    <!-- Infos principales -->
+                    <div>
+                        <h3 class="font-semibold text-lg text-gray-800 flex items-center gap-2">
+                            <i class="bi bi-folder2-open text-green-600"></i> Dossier #{{ dossier.id }}
+                        </h3>
+                        <p class="text-gray-600 text-sm">
+                            👤 Patient : <strong>{{ dossier.patient.nom }} {{ dossier.patient.prenom }}</strong>
+                        </p>
+                        <p class="text-gray-600 text-sm">
+                            📅 Créé le : {{ dossier.dateCreation | date:'short' }}
+                        </p>
+                        <p class="text-gray-600 text-sm">
+                            📝 Résumé : {{ dossier.resume | slice:0:100 }}...
+                        </p>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="flex gap-2">
+                        <button class="btn-secondary" (click)="viewDossier(dossier.id)">
+                            <i class="bi bi-eye"></i> Voir
+                        </button>
+                        <button class="btn-primary" *ngIf="canDownload(dossier)" (click)="downloadFiche(dossier.id)">
+                            <i class="bi bi-download"></i> PDF
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Tags / Statut -->
+                <div class="tags mt-3 flex gap-2">
+                    <span class="tag green" *ngIf="dossier.statut === 'VALIDE'">
+                        <i class="bi bi-check-circle"></i> Validé
+                    </span>
+                    <span class="tag yellow" *ngIf="dossier.statut === 'EN_COURS'">
+                        <i class="bi bi-hourglass-split"></i> En cours
+                    </span>
+                    <span class="tag red" *ngIf="dossier.statut === 'REFUSE'">
+                        <i class="bi bi-x-circle"></i> Refusé
+                    </span>
+                </div>
+            </div>
+        </ng-container>
+
+        <!-- Aucun dossier -->
+        <ng-template #noDossiers>
+            <div class="empty-state glass-card text-center p-10 mt-6">
+                <i class="bi bi-inbox text-5xl text-gray-400 mb-3"></i>
+                <p class="text-gray-500">Aucun dossier trouvé avec ces critères.</p>
+            </div>
+        </ng-template>
+    </div>
+</div>

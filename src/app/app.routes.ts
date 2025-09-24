@@ -3,10 +3,12 @@ import { LoginComponent } from './login/login.component';
 import { RegisterComponent } from './register/register.component';
 import { HomeComponent } from './home/home.component';
 import { TourneeOptimiseeComponent } from './tournee-optimisee/tournee-optimisee.component';
-import { Calendar } from '@fullcalendar/core/index.js';
 import { CalendarRendezvousComponent } from './calendar-rendezvous/calendar-rendezvous.component';
 import { DossierMedicalComponent } from './dossier.medical/dossier.medical.component';
 import { JitsiMeetComponent } from './jitsi-meet/jitsi-meet.component';
+import { DossierHistorique } from './dossier-historique/dossier-historique';
+import { DossierDetail } from './dossier-detail/dossier-detail';
+import { PaiementComponent } from './paiement.component/paiement.component';
 
 export const routes: Routes = [
     {
@@ -36,6 +38,10 @@ export const routes: Routes = [
         {
         path: 'jitsi',
         component: JitsiMeetComponent
-    }
+    },
+    { path: 'dossiers-historique', component: DossierHistorique },
+    { path: 'dossier/:id', component: DossierDetail },
+    { path: 'paiement/:id', component: PaiementComponent },
+    //   { path: '', redirectTo: '/dossiers-historique', pathMatch: 'full' },
 
 ];

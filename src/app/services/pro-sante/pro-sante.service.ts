@@ -1,8 +1,9 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { map, Observable } from 'rxjs';
-import { ProSante } from '../interfaces/pro-sante';
-import { RecherchePro } from '../interfaces/recherche-pro';
+import { ProSante } from '../../interfaces/pro-sante';
+import { RecherchePro } from '../../interfaces/recherche-pro';
+
 
 @Injectable({
   providedIn: 'root'
@@ -29,6 +30,8 @@ export class ProSanteService {
     map(response => response.data ?? [])
   );
   }
+
+  
 
 
 }

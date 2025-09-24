@@ -1,0 +1,61 @@
+.main-container {
+    background: #f8fafc;
+    min-height: 100vh;
+}
+
+.glass-card {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(16px);
+    border-radius: 1.2rem;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+    animation: fadeIn 0.8s ease-out;
+}
+
+.section-title {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 10px;
+}
+
+.info-list {
+    list-style: none;
+    padding-left: 0;
+    color: #475569;
+}
+
+.sub-list {
+    list-style: disc;
+    padding-left: 1.5rem;
+    color: #334155;
+}
+
+h4 {
+    margin-top: 8px;
+    font-size: 1rem;
+    color: #0f172a;
+}
+
+.active-tab {
+    border-bottom: 3px solid #2563eb;
+    /* bleu Tailwind */
+    color: #2563eb;
+}
+
+.tab-content {
+    padding: 1.5rem 0;
+}
+
+.section-title {
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: #374151;
+    margin-bottom: 0.5rem;
+}
+
+.info-card {
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    padding: 0.75rem 1rem;
+    border-radius: 0.75rem;
+}

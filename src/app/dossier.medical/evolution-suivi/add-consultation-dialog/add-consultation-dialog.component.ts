@@ -7,11 +7,12 @@ import { MatInputModule } from '@angular/material/input';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { map, Observable, startWith, switchMap } from 'rxjs';
 import { ProSante } from '../../../interfaces/pro-sante';
-import { ProSanteService } from '../../../services/pro-sante.service';
+
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatDialogActions } from '@angular/material/dialog';
 import { CommonModule } from '@angular/common';
+import { ProSanteService } from '../../../services/pro-sante/pro-sante.service';
 
 @Component({
   selector: 'app-add-consultation-dialog',

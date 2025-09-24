@@ -9,6 +9,7 @@ import { trigger, transition, style, animate } from '@angular/animations';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NotificationService } from '../services/notification/notification.service';
+import { AuthService } from '../services/auth/auth.service';
 
 @Component({
   selector: 'app-calendar-rendezvous',
@@ -48,7 +49,9 @@ export class CalendarRendezvousComponent implements OnInit {
   toastMessage = '';
   modalData: { id: number | null, date: string, heure: string, nomPro: string } = { id: null, date: '', heure: '09:00', nomPro: '' };
 
-  constructor(private rdvService: RendezVousService, private notificationService: NotificationService) {}
+  constructor(private rdvService: RendezVousService, private notificationService: NotificationService, 
+    private authService: AuthService
+  ) {}
 
   handleDateClick(arg: any) {
     this.modalData.id = null; // Reset ID for new appointment
@@ -168,7 +171,8 @@ export class CalendarRendezvousComponent implements OnInit {
 
   chargerRendezVous() {
     this.loading = true;
-    this.rdvService.getRendezVousPatient(20).subscribe(data => {
+    console.log("Chargement des rendez-vous...", this.authService.getUser().id);
+    this.rdvService.getRendezVousPatient(this.authService.getUser().id).subscribe(data => {
       const filtered = data.filter(rdv => {
         const matchesNom = this.filters.nomPro === '' || rdv.proSante?.nom?.toLowerCase().includes(this.filters.nomPro.toLowerCase());
         const matchesDate = this.filters.date === '' || rdv.dateHeure?.startsWith(this.filters.date);

@@ -1,40 +1,30 @@
-/* Container principal */
-
 .main-container {
     background: #f8fafc;
-    min-height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
 }
 
 
-/* Glass effect card */
+/* Glass card */
 
 .glass-card {
-    background: rgba(255, 255, 255, 0.75);
-    backdrop-filter: blur(18px);
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(16px);
     border-radius: 1.2rem;
-    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
     animation: fadeIn 0.8s ease-out;
-    width: 100%;
-    max-width: 640px;
 }
 
 
-/* Titre */
+/* Form title */
 
 .form-title {
     display: flex;
     align-items: center;
     gap: 12px;
     color: #1e293b;
-    font-size: 1.6rem;
-    font-weight: bold;
 }
 
 
-/* Inputs */
+/* Input group */
 
 .input-group {
     display: flex;
@@ -45,14 +35,13 @@
 .input-label {
     font-weight: 600;
     color: #334155;
-    font-size: 0.95rem;
 }
 
 .input-wrapper {
     display: flex;
     align-items: center;
     gap: 10px;
-    padding: 12px 14px;
+    padding: 12px;
     border: 2px solid #e2e8f0;
     border-radius: 12px;
     background: #fff;
@@ -67,7 +56,6 @@
 
 .input-wrapper i {
     font-size: 1.2rem;
-    color: #64748b;
 }
 
 input,
@@ -80,30 +68,20 @@ select {
 }
 
 
-/* Texte hint */
-
-.hint-text {
-    font-size: 0.85rem;
-    color: #64748b;
-}
-
-
-/* Bouton */
+/* Buttons */
 
 .btn-primary {
     background: linear-gradient(90deg, #10b981, #34d399);
     color: #fff;
     padding: 14px;
     font-weight: 600;
-    font-size: 1.1rem;
+    font-size: 1.05rem;
     border-radius: 12px;
     display: flex;
     justify-content: center;
     align-items: center;
     gap: 8px;
     transition: all 0.3s ease;
-    border: none;
-    cursor: pointer;
 }
 
 .btn-primary:hover {
@@ -112,26 +90,80 @@ select {
     box-shadow: 0 6px 18px rgba(16, 185, 129, 0.4);
 }
 
-
-/* Checkbox terms */
-
-.form-check-input {
-    accent-color: #10b981;
-    width: 18px;
-    height: 18px;
-    cursor: pointer;
+.btn-secondary {
+    background: #e2e8f0;
+    color: #1e293b;
+    padding: 12px;
+    font-weight: 600;
+    border-radius: 12px;
+    transition: all 0.3s ease;
 }
 
-.form-check-label {
-    font-size: 0.9rem;
-    color: #475569;
+.btn-secondary:hover {
+    background: #cbd5e1;
+    transform: scale(1.03);
 }
 
 
-/* Champs dynamiques */
+/* Dossier cards */
 
-.space-y-4 .input-group {
-    margin-top: 10px;
+.dossier-card {
+    transition: all 0.3s ease;
+}
+
+
+/* Tags */
+
+.tags .tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 10px;
+}
+
+.tag.green {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.tag.yellow {
+    background: #fef9c3;
+    color: #92400e;
+}
+
+.tag.red {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+
+/* Empty state */
+
+.empty-state {
+    border: 2px dashed #d1d5db;
+    border-radius: 1rem;
+    padding: 3rem 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 200px;
+}
+
+.empty-state i {
+    opacity: 0.7;
+}
+
+
+/* Dossiers container scrollable */
+
+.dossiers-container {
+    max-height: 80vh;
+    overflow-y: auto;
+    min-height: 300px;
 }
 
 

@@ -1,48 +1,165 @@
 <div class="container-scroller">
     <!-- Left SVG panel -->
     <div class="left-panel animate__animated animate__slideInLeft" aria-hidden="true">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512" fill="white" aria-hidden="true" focusable="false">
-        <path d="M320 32C192 32 96 128 96 256s96 224 224 224 224-96 224-224S448 32 320 32zm0 384c-88.22 0-160-71.78-160-160S231.78 96 320 96s160 71.78 160 160-71.78 160-160 160z"/>
-      </svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512" fill="white" aria-hidden="true" focusable="false">
+      <path d="M320 32C192 32 96 128 96 256s96 224 224 224 224-96 224-224S448 32 320 32zm0 384c-88.22 0-160-71.78-160-160S231.78 96 320 96s160 71.78 160 160-71.78 160-160 160z"/>
+    </svg>
     </div>
-    <!-- Right signup form panel -->
-    <div class="right-panel d-flex align-items-center justify-content-center p-0" style="height: 100vh; width: 100%;">
-     <div class="auth-panel animate__animated animate__fadeInUp" role="main" aria-label="Login form">
-        <button class="theme-toggle bg-white" onclick="toggleTheme()" title="Toggle theme">🌓</button>
-        <h4>New here?</h4>
-        <h6 class="fw-light">Signing up is easy. It only takes a few steps</h6>
 
-        <form class="pt-3" novalidate>
-          <div class="mb-3">
-            <input type="text" class="form-control form-control-lg" id="username" placeholder="Username" required aria-label="Username" />
-          </div>
-          <div class="mb-3">
-            <input type="email" class="form-control form-control-lg" id="email" placeholder="Email" required aria-label="Email" />
-          </div>
-          <div class="mb-3">
-            <select class="form-select form-select-lg" id="country" aria-label="Country" required>
-              <option value="" disabled selected>Country</option>
-              <option>United States of America</option>
-              <option>United Kingdom</option>
-              <option>India</option>
-              <option>Germany</option>
-              <option>Argentina</option>
+    <!-- Right signup form panel -->
+    <div class="main-container flex justify-center items-center p-6 h-screen overflow-auto">
+        <div class="form-container glass-card p-8 rounded-2xl shadow-lg border border-gray-200 space-y-6 w-full max-w-2xl max-h-screen overflow-y-auto">
+            <h2 class="form-title text-2xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+                <i class="bi bi-person-plus text-green-600 text-3xl"></i> Créer un compte
+            </h2>
+            <p class="text-gray-600">Remplissez le formulaire ci-dessous pour vous inscrire</p>
+            <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" novalidate>
+                <!-- Nom -->
+                <div class="input-group">
+                    <label for="nom" class="input-label">Nom</label>
+                    <div class="input-wrapper">
+                        <i class="bi bi-person text-gray-500"></i>
+                        <input id="nom" type="text" formControlName="nom" placeholder="Votre nom" required />
+                    </div>
+                </div>
+
+                <!-- Prénom -->
+                <div class="input-group">
+                    <label for="prenom" class="input-label">Prénom</label>
+                    <div class="input-wrapper">
+                        <i class="bi bi-person-badge text-gray-500"></i>
+                        <input id="prenom" type="text" formControlName="prenom" placeholder="Votre prénom" required />
+                    </div>
+                </div>
+
+                <!-- Sexe -->
+                <div class="input-group">
+                    <label for="sexe" class="input-label">Sexe</label>
+                    <div class="input-wrapper">
+                        <i class="bi bi-gender-ambiguous text-gray-500"></i>
+                        <select id="sexe" formControlName="sexe" required>
+              <option value="" disabled selected>Choisir...</option>
+              <option value="Masculin">Masculin</option>
+              <option value="Féminin">Féminin</option>
             </select>
-          </div>
-          <div class="mb-3">
-            <input type="password" class="form-control form-control-lg" id="password" placeholder="Password" required aria-label="Password" />
-          </div>
-          <div class="mb-4 form-check">
-            <input type="checkbox" class="form-check-input" id="terms" required />
-            <label class="form-check-label" for="terms">I agree to all Terms &amp; Conditions</label>
-          </div>
-          <div class="mt-3 d-grid gap-2">
-            <button type="submit" class="btn btn-primary btn-lg fw-semibold">SIGN UP</button>
-          </div>
-          <div class="text-center mt-4 fw-light">
-            Already have an account? <a routerLink="/login" class="text-accent fw-semibold">Login</a>
-          </div>
-        </form>
-      </div>
+                    </div>
+                </div>
+
+                <!-- Email -->
+                <div class="input-group">
+                    <label for="email" class="input-label">Email</label>
+                    <div class="input-wrapper">
+                        <i class="bi bi-envelope text-gray-500"></i>
+                        <input id="email" type="email" formControlName="email" placeholder="exemple@mail.com" required />
+                    </div>
+                </div>
+
+                <!-- Adresse -->
+                <div class="input-group">
+                    <label for="adresse" class="input-label">Adresse</label>
+                    <div class="input-wrapper">
+                        <i class="bi bi-geo-alt text-gray-500"></i>
+                        <input id="adresse" type="text" formControlName="adresse" placeholder="Adresse complète" />
+                    </div>
+                </div>
+
+                <!-- Téléphone -->
+                <div class="input-group">
+                    <label for="telephone" class="input-label">Téléphone</label>
+                    <div class="input-wrapper">
+                        <i class="bi bi-telephone text-gray-500"></i>
+                        <input id="telephone" type="text" formControlName="telephone" placeholder="77 000 00 00" />
+                    </div>
+                </div>
+
+                <!-- Mot de passe -->
+                <div class="input-group">
+                    <label for="motDePasse" class="input-label">Mot de passe</label>
+                    <div class="input-wrapper">
+                        <i class="bi bi-lock text-gray-500"></i>
+                        <input id="motDePasse" type="password" formControlName="motDePasse" placeholder="********" required />
+                    </div>
+                </div>
+
+                <!-- Rôle -->
+                <div class="input-group">
+                    <label for="role" class="input-label">Rôle</label>
+                    <div class="input-wrapper">
+                        <i class="bi bi-people text-gray-500"></i>
+                        <select id="role" formControlName="role" required>
+              <option value="PATIENT">Patient</option>
+              <option value="PRO_SANTE">Professionnel de santé</option>
+            </select>
+                    </div>
+                </div>
+
+                <!-- Champs dynamiques Patient -->
+                <div *ngIf="registerForm.value.role === 'PATIENT'" class="space-y-4">
+                    <div class="input-group">
+                        <label for="lieuNaissance" class="input-label">Lieu de naissance</label>
+                        <div class="input-wrapper">
+                            <i class="bi bi-geo text-gray-500"></i>
+                            <input id="lieuNaissance" type="text" formControlName="lieuNaissance" placeholder="Ville de naissance" />
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label for="dateNaissance" class="input-label">Date de naissance</label>
+                        <div class="input-wrapper">
+                            <i class="bi bi-calendar text-gray-500"></i>
+                            <input id="dateNaissance" type="date" formControlName="dateNaissance" />
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label for="situationFamiliale" class="input-label">Situation familiale</label>
+                        <div class="input-wrapper">
+                            <i class="bi bi-heart text-gray-500"></i>
+                            <select id="situationFamiliale" formControlName="situationFamiliale">
+                <option value="" disabled selected>Choisir...</option>
+                <option value="Célibataire">Célibataire</option>
+                <option value="Marié(e)">Marié(e)</option>
+                <option value="Divorcé(e)">Divorcé(e)</option>
+                <option value="Veuf(ve)">Veuf(ve)</option>
+              </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Champs dynamiques Pro -->
+                <div *ngIf="registerForm.value.role === 'PRO_SANTE'" class="space-y-4">
+                    <div class="input-group">
+                        <label for="specialite" class="input-label">Spécialité</label>
+                        <div class="input-wrapper">
+                            <i class="bi bi-heart-pulse text-gray-500"></i>
+                            <input id="specialite" type="text" formControlName="specialite" placeholder="Ex: Cardiologue" />
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label for="description" class="input-label">Description</label>
+                        <div class="input-wrapper">
+                            <i class="bi bi-text-paragraph text-gray-500"></i>
+                            <input id="description" type="text" formControlName="description" placeholder="Brève présentation" />
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label for="tarif" class="input-label">Tarif (€)</label>
+                        <div class="input-wrapper">
+                            <i class="bi bi-cash-stack text-gray-500"></i>
+                            <input id="tarif" type="number" formControlName="tarif" placeholder="Ex: 50" />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Terms -->
+                <!-- <div class="flex items-center gap-3 mt-4">
+                    <input type="checkbox" class="form-check-input" formControlName="terms" />
+                    <label class="text-gray-600 text-sm">J’accepte les <a href="#" class="text-green-600 underline">Conditions générales</a></label>
+                </div> -->
+
+                <!-- Submit -->
+                <button type="submit" class="btn-primary w-full mt-6" [disabled]="registerForm.invalid">
+          <i class="bi bi-person-check"></i> S'inscrire
+        </button>
+            </form>
+        </div>
     </div>
 </div>

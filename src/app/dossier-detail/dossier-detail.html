@@ -1,0 +1,123 @@
+<app-sidebar></app-sidebar>
+
+<div class="main-container ml-72 p-6">
+    <div class="glass-card rounded-2xl shadow-lg border border-gray-200 p-6">
+        <!-- 🔹 Header du dossier -->
+        <div class="flex justify-between items-center border-b pb-4 mb-4">
+            <div>
+                <h2 class="text-2xl font-bold text-gray-800 flex items-center gap-2">
+                    <i class="bi bi-folder2-open text-blue-600"></i> Dossier médical #{{ dossier?.id }}
+                </h2>
+                <p class="text-gray-500 text-sm">
+                    Patient : <span class="font-semibold">{{ dossier?.patient?.nom }} {{ dossier?.patient?.prenom }}</span>
+                </p>
+                <p class="text-gray-500 text-sm">
+                    Créé le : {{ dossier?.dateCreation | date:'longDate' }}
+                </p>
+            </div>
+            <div class="flex gap-2">
+                <button class="btn-primary" (click)="downloadFiche(dossier.id)">
+          <i class="bi bi-download"></i> Exporter en PDF
+        </button>
+            </div>
+        </div>
+
+        <!-- 🔹 Tabs navigation -->
+        <ul class="flex border-b text-gray-600 font-medium text-sm space-x-6 overflow-x-auto">
+            <li (click)="activeTab = 'infos'" [class.active-tab]="activeTab === 'infos'">Infos</li>
+            <li (click)="activeTab = 'antecedents'" [class.active-tab]="activeTab === 'antecedents'">Antécédents</li>
+            <li (click)="activeTab = 'examen'" [class.active-tab]="activeTab === 'examen'">Examens cliniques</li>
+            <li (click)="activeTab = 'examensCompl'" [class.active-tab]="activeTab === 'examensCompl'">Examens complémentaires</li>
+            <li (click)="activeTab = 'traitements'" [class.active-tab]="activeTab === 'traitements'">Traitements</li>
+            <li (click)="activeTab = 'diagnostic'" [class.active-tab]="activeTab === 'diagnostic'">Diagnostic</li>
+            <li (click)="activeTab = 'suivi'" [class.active-tab]="activeTab === 'suivi'">Évolution & Suivi</li>
+            <li (click)="activeTab = 'correspondances'" [class.active-tab]="activeTab === 'correspondances'">Correspondances</li>
+        </ul>
+
+        <!-- 🔹 Onglet Infos -->
+        <div *ngIf="activeTab === 'infos'" class="tab-content">
+            <h3 class="section-title">Informations générales</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="info-card">
+                    <strong>Couverture sociale:</strong> {{ dossier?.infos?.couvertureSociale }}
+                </div>
+                <div class="info-card">
+                    <strong>Personne d’urgence:</strong> {{ dossier?.infos?.personneUrgence }}
+                </div>
+                <div class="info-card">
+                    <strong>Téléphone d’urgence:</strong> {{ dossier?.infos?.indicatifUrgence }} {{ dossier?.infos?.telPersonneUrgence }}
+                </div>
+            </div>
+        </div>
+
+        <!-- 🔹 Onglet Antécédents -->
+        <div *ngIf="activeTab === 'antecedents'" class="tab-content">
+            <h3 class="section-title">Antécédents médicaux</h3>
+            <ul class="list-disc ml-6">
+                <li *ngFor="let item of dossier?.antecedents?.antecedentsMedicaux">{{ item }}</li>
+            </ul>
+
+            <h3 class="section-title mt-4">Antécédents chirurgicaux</h3>
+            <ul class="list-disc ml-6">
+                <li *ngFor="let item of dossier?.antecedents?.antecedentsChirurgicaux">{{ item }}</li>
+            </ul>
+
+            <h3 class="section-title mt-4">Antécédents obstétricaux</h3>
+            <ul class="list-disc ml-6">
+                <li *ngFor="let item of dossier?.antecedents?.antecedentsObstetricaux">{{ item }}</li>
+            </ul>
+        </div>
+
+        <!-- 🔹 Onglet Examens cliniques -->
+        <div *ngIf="activeTab === 'examen'" class="tab-content">
+            <h3 class="section-title">Paramètres vitaux</h3>
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                <div class="info-card"><strong>Poids :</strong> {{ dossier?.examenClinique?.poids }} kg</div>
+                <div class="info-card"><strong>Taille :</strong> {{ dossier?.examenClinique?.taille }} cm</div>
+                <div class="info-card"><strong>TA :</strong> {{ dossier?.examenClinique?.tensionArterielle }}</div>
+                <div class="info-card"><strong>Température :</strong> {{ dossier?.examenClinique?.temperature }} °C</div>
+                <div class="info-card"><strong>FC :</strong> {{ dossier?.examenClinique?.frequenceCardiaque }} bpm</div>
+                <div class="info-card"><strong>SPO₂ :</strong> {{ dossier?.examenClinique?.saturationOxygene }} %</div>
+            </div>
+        </div>
+
+        <!-- 🔹 Onglet Examens complémentaires -->
+        <div *ngIf="activeTab === 'examensCompl'" class="tab-content">
+            <h3 class="section-title">Analyses sanguines</h3>
+            <ul class="list-disc ml-6">
+                <li *ngFor="let analyse of dossier?.examensComplementaires?.analysesSanguines">{{ analyse }}</li>
+            </ul>
+            <!-- Tu dupliques de la même façon pour urines, radios, etc. -->
+        </div>
+
+        <!-- 🔹 Onglet Traitements -->
+        <div *ngIf="activeTab === 'traitements'" class="tab-content">
+            <h3 class="section-title">Médicaments</h3>
+            <ul class="list-disc ml-6">
+                <li *ngFor="let med of dossier?.traitements?.medicaments">{{ med }}</li>
+            </ul>
+        </div>
+
+        <!-- 🔹 Onglet Diagnostic -->
+        <div *ngIf="activeTab === 'diagnostic'" class="tab-content">
+            <h3 class="section-title">Diagnostic principal</h3>
+            <p>{{ dossier?.diagnosticMedical?.diagnosticPrincipal }} ({{ dossier?.diagnosticMedical?.codePrincipal }})</p>
+        </div>
+
+        <!-- 🔹 Onglet Suivi -->
+        <div *ngIf="activeTab === 'suivi'" class="tab-content">
+            <h3 class="section-title">Notes d’évolution</h3>
+            <ul class="list-disc ml-6">
+                <li *ngFor="let note of dossier?.evolutionSuivi?.notesEvolution">{{ note }}</li>
+            </ul>
+        </div>
+
+        <!-- 🔹 Onglet Correspondances -->
+        <div *ngIf="activeTab === 'correspondances'" class="tab-content">
+            <h3 class="section-title">Compte-rendu d’hospitalisation</h3>
+            <p><strong>Admission :</strong> {{ dossier?.correspondances?.compteRenduHospitalisation?.dateAdmission }}</p>
+            <p><strong>Sortie :</strong> {{ dossier?.correspondances?.compteRenduHospitalisation?.dateSortie }}</p>
+            <p><strong>Diagnostic sortie :</strong> {{ dossier?.correspondances?.compteRenduHospitalisation?.diagnosticSortie }}</p>
+        </div>
+    </div>
+</div>

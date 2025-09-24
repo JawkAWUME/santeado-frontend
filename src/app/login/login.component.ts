@@ -6,20 +6,19 @@ import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-login',
-  imports: [RouterLink,CommonModule,FormsModule, ReactiveFormsModule],
+  standalone: true,
+  imports: [RouterLink, CommonModule, FormsModule, ReactiveFormsModule],
   templateUrl: './login.component.html',
   styleUrl: './login.component.css'
 })
 export class LoginComponent {
-  
   error: string | null = null;
   loginForm: ReturnType<FormBuilder['group']>;
 
-  constructor(private fb: FormBuilder, private auth: AuthService,private router: Router) {
+  constructor(private fb: FormBuilder, private auth: AuthService, private router: Router) {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       motDePasse: ['', [Validators.required, Validators.minLength(6)]],
-     // Par défaut, on considère que l'utilisateur est un patient
     });
   }
 
@@ -27,9 +26,11 @@ export class LoginComponent {
     if (this.loginForm.valid) {
       this.auth.login(this.loginForm.value).subscribe({
         next: res => {
-          res.role = 'PATIENT';
-          this.auth.saveToken(res.token, res.role);
-          this.router.navigate([res.role === 'PATIENT' ? '/' : '/tournee-optimisee']);
+          console.log('Login successful', res);
+          // ✅ ici on set hasLoggedInOnce à true
+          this.auth.saveToken(res.token, res.user.role, true);
+          this.auth.saveUser(this.auth.getUser());
+          this.router.navigate([res.user.role === 'PATIENT' ? '/' : '/tournee-optimisee']);
         },
         error: (err) => {
           this.error = 'Identifiants incorrects. Veuillez réessayer.';

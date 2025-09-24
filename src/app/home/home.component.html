@@ -54,7 +54,7 @@
                 <i class="bi bi-person-badge text-gray-500"></i>
                 <select id="pro" [(ngModel)]="selectedPro" (change)="onProSelected()">
           <option [ngValue]="null">-- Choisir un professionnel --</option>
-          <option *ngFor="let pro of filteredPros" [ngValue]="pro">{{ pro.nom }} — {{ pro.specialite }}</option>
+          <option *ngFor="let pro of filteredPros" [ngValue]="pro">{{ pro.nom }}  — {{ pro.specialite }}</option>
         </select>
             </div>
         </div>
