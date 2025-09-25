@@ -60,7 +60,7 @@ import { catchError, map, of, switchMap } from 'rxjs';
     ]),
   ],
 })
-export class DossierMedicalComponent implements OnInit {
+export class DossierMedicalComponent {
   dossierForm: FormGroup;
   dossierMedical!: DossierMedical;
   patientId!: number;

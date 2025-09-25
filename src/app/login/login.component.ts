@@ -27,10 +27,15 @@ export class LoginComponent {
       this.auth.login(this.loginForm.value).subscribe({
         next: res => {
           console.log('Login successful', res);
-          // ✅ ici on set hasLoggedInOnce à true
+
+          // ✅ On utilise la vraie réponse du backend
           this.auth.saveToken(res.token, res.user.role, true);
-          this.auth.saveUser(this.auth.getUser());
-          this.router.navigate([res.user.role === 'PATIENT' ? '/' : '/tournee-optimisee']);
+          this.auth.saveUser(res.user);
+
+          // ✅ Redirection selon le rôle
+          this.router.navigate([
+            res.user.role === 'PATIENT' ? '/' : '/tournee-optimisee'
+          ]);
         },
         error: (err) => {
           this.error = 'Identifiants incorrects. Veuillez réessayer.';

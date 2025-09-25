@@ -1,9 +1,6 @@
 <div class="container-scroller">
     <!-- Left SVG panel -->
-    <div class="left-panel animate__animated animate__slideInLeft" aria-hidden="true">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512" fill="white" aria-hidden="true" focusable="false">
-      <path d="M320 32C192 32 96 128 96 256s96 224 224 224 224-96 224-224S448 32 320 32zm0 384c-88.22 0-160-71.78-160-160S231.78 96 320 96s160 71.78 160 160-71.78 160-160 160z"/>
-    </svg>
+    <div class="left-panel animate__animated animate__slideInLeft bg-white bg-center bg-no-repeat bg-contain" style="background-image: url('WhatsApp Image 2025-09-21 à 15.55.45_451016a0.jpg');" aria-hidden="true">
     </div>
 
     <!-- Right signup form panel -->
@@ -129,8 +126,10 @@
                     <div class="input-group">
                         <label for="specialite" class="input-label">Spécialité</label>
                         <div class="input-wrapper">
-                            <i class="bi bi-heart-pulse text-gray-500"></i>
-                            <input id="specialite" type="text" formControlName="specialite" placeholder="Ex: Cardiologue" />
+                            <select formControlName="specialite" id="specialite" class="form-select">
+                                    <option value="" disabled selected>-- Sélectionnez une spécialité --</option>
+                                    <option *ngFor="let sp of specialites" [value]="sp">{{ sp }}</option>
+                            </select>
                         </div>
                     </div>
                     <div class="input-group">

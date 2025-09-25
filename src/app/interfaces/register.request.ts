@@ -16,5 +16,9 @@ export interface RegisterRequest extends AuthRequest {
   // Champs spécifiques ProSante
   specialite?: string;
   description?: string;
-  tarif?: number;           
+  tarif?: number;  
+  
+  latitude?: number | 0;
+  longitude?: number | 0;
+          
 }

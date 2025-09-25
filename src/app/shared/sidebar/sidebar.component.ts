@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth/auth.service';
 
 @Component({
@@ -61,9 +61,13 @@ export class SidebarComponent implements OnInit {
     },
   ];
 
-  constructor(private auth: AuthService) {}
+  constructor(private auth: AuthService, private router: Router) {}
 
   ngOnInit(): void {
     this.user = this.auth.getUser(); // ✅ récupère l’utilisateur connecté
+  }
+
+  goToLogin() {
+    this.router.navigate(['/login']);
   }
 }

@@ -9,17 +9,19 @@ import frLocale from '@fullcalendar/core/locales/fr'; // ⬅️ Français
 import { CommonModule } from '@angular/common';
 import { SidebarComponent } from '../shared/sidebar/sidebar.component';
 import { RendezVousService } from '../services/rdv/rendez-vous.service';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
+import { AuthService } from '../services/auth/auth.service';
 
 @Component({
   selector: 'app-tournee-optimisee',
-  imports: [CommonModule, FullCalendarModule, SidebarComponent],
+  imports: [CommonModule, FullCalendarModule, SidebarComponent, RouterLink],
   templateUrl: './tournee-optimisee.component.html',
   styleUrl: './tournee-optimisee.component.css'
 })
-export class TourneeOptimiseeComponent implements OnInit, AfterViewInit, OnDestroy {
+export class TourneeOptimiseeComponent implements AfterViewInit, OnDestroy {
   constructor(
     private rendezVousService: RendezVousService,
+    private authService: AuthService,
     private route: ActivatedRoute
   ) {}
 
@@ -50,10 +52,12 @@ export class TourneeOptimiseeComponent implements OnInit, AfterViewInit, OnDestr
   };
 
   ngOnInit(): void {
-    this.route.params.subscribe(params => {
-      const tourneeId = 24;
-      if (tourneeId) {
-        this.rendezVousService.getRendezVousPro(tourneeId).subscribe((rdvs: RendezVous[]) => {
+    // Récupérer l'ID de tournée depuis les paramètres de la route
+      const currentUser = this.authService.getUser();
+      const proId = currentUser?.id;
+      console.log("ID Pro Santé connecté :", proId);
+      if (proId) {
+        this.rendezVousService.getRendezVousPro(proId).subscribe((rdvs: RendezVous[]) => {
           this.rdvs = rdvs;
           this.initCalendrier();
           if (this.map) {
@@ -62,7 +66,7 @@ export class TourneeOptimiseeComponent implements OnInit, AfterViewInit, OnDestr
           }
         });
       }
-    });
+ 
   }
 
   ngAfterViewInit(): void {
@@ -174,4 +178,6 @@ export class TourneeOptimiseeComponent implements OnInit, AfterViewInit, OnDestr
   ngOnDestroy(): void {
     if (this.map) this.map.remove();
   }
+
+  
 }

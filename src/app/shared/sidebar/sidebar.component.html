@@ -25,7 +25,12 @@
                       focus:bg-white transition" />
             </div>
         </form>
-
+        <div class="px-5 py-4 border-t mt-6">
+            <button (click)="goToLogin()" class="w-full flex items-center justify-center gap-2 px-4 py-2 bg-red-500 text-white text-sm font-semibold rounded-md shadow hover:bg-red-600 transition">
+    <i class="mdi mdi-logout"></i>
+    Se déconnecter
+  </button>
+        </div>
         <!-- Section: Template Pages
         <div class="text-xs text-gray-400 font-bold uppercase tracking-widest px-2 mb-2">Template Pages</div>
         <a routerLink="/dashboard" class="flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-700 
@@ -64,5 +69,6 @@
             </a>
         </div> -->
         <!-- -->
+
     </div>
 </aside>

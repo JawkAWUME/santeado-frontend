@@ -1,56 +1,61 @@
 <div class="container-scroller">
     <!-- Left panel illustration -->
-    <div class="left-panel animate__animated animate__slideInLeft" aria-hidden="true">
-        <img src="../../assets/images/login-illustration.svg" alt="Illustration" />
+    <div class="left-panel animate__animated animate__slideInLeft bg-white bg-center bg-no-repeat bg-contain" style="background-image: url('WhatsApp Image 2025-09-21 à 15.55.45_451016a0.jpg');" aria-hidden="true">
     </div>
 
-    <!-- Right panel with login form -->
-    <div class="right-panel d-flex align-items-center justify-content-center">
-        <div class="auth-panel animate__animated animate__fadeInUp" role="main" aria-label="Login form">
-
-            <!-- Logo -->
-            <div class="text-center mb-4">
-                <img src="../../assets/images/logo.svg" alt="Logo" height="48" />
-            </div>
-
+    <!-- Right login form -->
+    <div class="main-container flex justify-center items-center p-6 h-screen overflow-auto">
+        <div class="form-container glass-card p-8 rounded-2xl shadow-lg border border-gray-200 space-y-6 w-full max-w-md">
             <!-- Title -->
-            <h2 class="form-title text-center">Welcome Back 👋</h2>
-            <p class="form-subtitle text-center">Sign in to continue</p>
+            <h2 class="form-title text-2xl font-bold text-gray-800 mb-2 flex items-center gap-2 justify-center">
+                <i class="bi bi-box-arrow-in-right text-green-600 text-3xl"></i> Connexion
+            </h2>
+            <p class="text-gray-600 text-center">Entrez vos identifiants pour continuer</p>
 
             <!-- Form -->
             <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" novalidate>
 
                 <!-- Email -->
-                <div class="mb-3">
-                    <input type="email" formControlName="email" class="form-control form-control-lg" placeholder="Email" required aria-label="Email" />
+                <div class="input-group">
+                    <label for="email" class="input-label">Email</label>
+                    <div class="input-wrapper">
+                        <i class="bi bi-envelope text-gray-500"></i>
+                        <input id="email" type="email" formControlName="email" placeholder="exemple@mail.com" required />
+                    </div>
                 </div>
 
                 <!-- Password -->
-                <div class="mb-3">
-                    <input type="password" formControlName="motDePasse" class="form-control form-control-lg" placeholder="Mot de Passe" required aria-label="Password" />
+                <div class="input-group">
+                    <label for="motDePasse" class="input-label">Mot de Passe</label>
+                    <div class="input-wrapper">
+                        <i class="bi bi-lock text-gray-500"></i>
+                        <input id="motDePasse" type="password" formControlName="motDePasse" placeholder="********" required />
+                    </div>
                 </div>
 
                 <!-- Options -->
-                <div class="mb-3 d-flex justify-content-between align-items-center">
-                    <div class="form-check">
+                <div class="flex items-center justify-between text-sm mt-2">
+                    <div class="flex items-center gap-2">
                         <input type="checkbox" id="rememberMe" class="form-check-input" />
-                        <label for="rememberMe" class="form-check-label text-muted">Keep me signed in</label>
+                        <label for="rememberMe" class="text-gray-600">Se souvenir de moi</label>
                     </div>
-                    <a routerLink="/" class="text-accent small">Forgot password?</a>
+                    <a routerLink="/" class="text-green-600 hover:underline">Mot de passe oublié ?</a>
                 </div>
 
-                <!-- Submit button -->
-                <div class="d-grid mb-3">
-                    <button type="submit" class="btn btn-primary btn-lg">Sign In</button>
-                </div>
+                <!-- Submit -->
+                <button type="submit" class="btn-primary w-full mt-6" [disabled]="loginForm.invalid">
+                    <i class="bi bi-box-arrow-in-right"></i> Se connecter
+                </button>
 
                 <!-- Error -->
-                <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
+                <div *ngIf="error" class="mt-3 text-red-600 text-sm text-center font-semibold">
+                    {{ error }}
+                </div>
 
                 <!-- Register link -->
-                <div class="text-center mt-3">
-                    <span class="text-muted">Don’t have an account?</span>
-                    <a routerLink="/register" class="text-accent fw-semibold">Create</a>
+                <div class="text-center mt-4">
+                    <span class="text-gray-600">Pas encore de compte ?</span>
+                    <a routerLink="/register" class="text-green-600 font-semibold hover:underline">Créer un compte</a>
                 </div>
             </form>
         </div>

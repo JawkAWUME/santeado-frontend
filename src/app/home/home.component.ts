@@ -1,4 +1,4 @@
-import { Component, AfterViewInit } from '@angular/core';
+import { Component, AfterViewInit, OnInit } from '@angular/core';
 import mapboxgl from 'mapbox-gl';
 import { SidebarComponent } from "../shared/sidebar/sidebar.component";
 import { CommonModule } from '@angular/common';
@@ -8,6 +8,7 @@ import { ProSante } from '../interfaces/pro-sante';
 import { RendezVousService } from '../services/rdv/rendez-vous.service';
 import { RendezVous } from '../interfaces/rendez-vous';
 import { AuthService } from '../services/auth/auth.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-home',
@@ -22,8 +23,22 @@ export class HomeComponent implements AfterViewInit {
   latitude!: number;
   longitude!: number;
   rayonKm: number = 10;
+
+
+  ngOnInit(): void {
+    const currentUser = this.authService.getUser();
+
+    if (!currentUser || currentUser.role !== 'PATIENT') {
+      this.router.navigate(['/tournee-optimisee']);
+    }
+  }
+
   searchQuery: string = '';
-  specialites: string[] = ['Cardiologue', 'Généraliste', 'Dermatologue', 'Pédiatre'];
+  specialites: string[] = [
+    "Généraliste", "Pédiatre", "Cardiologue", "Gynécologue", "Dentiste",
+    "Dermatologue", "Ophtalmologue", "Orthopédiste", "ORL", "Neurologue"
+  ];
+
   selectedSpecialite: string = '';
   tarifMax: number = 100;
   marker!: mapboxgl.Marker;
@@ -38,7 +53,8 @@ export class HomeComponent implements AfterViewInit {
   constructor(
     private proSanteService: ProSanteService,
     private rendezVousService: RendezVousService,
-    private authService: AuthService
+    private authService: AuthService,
+    private router: Router
   ) {}
 
   ngAfterViewInit(): void {
