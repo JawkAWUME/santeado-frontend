@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, FormControl, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { DossierMedical } from '../interfaces/dossier.medical';
 import { DossierMedicalService } from '../services/dossier-medical/dossier-medical.service';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { AntecedentsFormComponent } from './antecedents-form/antecedents-form.component';
 import { ExamenCliniqueFormComponent } from './examen-clinique-form/examen-clinique-form.component';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -24,6 +24,7 @@ import { TraitementPrescription } from '../interfaces/traitement-prescription';
 import { EvolutionSuivi } from '../interfaces/evolution-suivi';
 import { DiagnosticMedical } from '../interfaces/diagnostic.medical';
 import { catchError, map, of, switchMap } from 'rxjs';
+import { AuthService } from '../services/auth/auth.service';
 
 @Component({
   selector: 'app-dossier.medical',
@@ -79,7 +80,9 @@ export class DossierMedicalComponent {
     private fb: FormBuilder,
     private dossierService: DossierMedicalService,
     private phoneRegexService: PhoneRegexService,
-    private route: ActivatedRoute
+    private router: Router,
+    private route: ActivatedRoute,
+    private authService: AuthService
   ) {
     // Initialisation du formulaire principal
     this.dossierForm = this.fb.group({
@@ -173,50 +176,57 @@ export class DossierMedicalComponent {
   }
 
   ngOnInit(): void {
-    this.patientId = +this.route.snapshot.paramMap.get('id')!;
-    this.updateVisibleSteps();
+  this.patientId = +this.route.snapshot.paramMap.get('id')!;
+  this.updateVisibleSteps();
 
-    // Charger les indicatifs téléphoniques
-    this.phoneRegexService.getCountryCallingCodes().subscribe({
-      next: (codes) => {
-        this.countryCallingCodes = codes;
-        const indicatif = this.infosForm.get('indicatifUrgence')?.value;
-        if (indicatif) {
-          this.selectedCallingCode = this.countryCallingCodes.find(c => c.code === indicatif);
+  // Charger les indicatifs téléphoniques
+  this.phoneRegexService.getCountryCallingCodes().subscribe({
+    next: (codes) => {
+      this.countryCallingCodes = codes;
+      const indicatif = this.infosForm.get('indicatifUrgence')?.value;
+      if (indicatif) {
+        this.selectedCallingCode = this.countryCallingCodes.find(c => c.code === indicatif);
+      }
+    },
+    error: (err) => console.error('Erreur chargement indicatifs téléphoniques', err),
+  });
+
+  // ✅ Récupérer l’utilisateur connecté
+  console.log('Récupération du dossier pour le patient ID:', this.patientId);
+  const currentUser = this.authService.getUser();
+
+  if (currentUser && currentUser.id) {
+    this.dossierService.getDossierByPatientId(this.patientId).pipe(
+      map(dossiers => dossiers.length > 0 ? dossiers[dossiers.length - 1] : null),
+      switchMap(dossier => {
+        if (dossier) {
+          this.dossierMedical = dossier;
+          this.patchForm(dossier);
+          this.setupPhoneValidation();
+          return of(dossier);
+        } else {
+          // Aucun dossier → on en crée un pour ce patient
+          return this.dossierService.creerDossier(this.patientId).pipe(
+            map(newDossier => {
+              this.dossierMedical = newDossier;
+              return newDossier;
+            })
+          );
         }
-      },
-      error: (err) => console.error('Erreur chargement indicatifs téléphoniques', err),
-    });
-
-    // Charger dossier patient
-    this.dossierService.getDossierByPatientId(3).pipe(
-  map(dossiers => dossiers.length > 0 ? dossiers[dossiers.length - 1] : null),
-  switchMap(dossier => {
-    if (dossier) {
-      this.dossierMedical = dossier;
-      this.patchForm(dossier);
-      this.setupPhoneValidation();
-      return of(dossier); // on renvoie un observable du dossier trouvé
-    } else {
-      // aucun dossier → on en crée un
-      return this.dossierService.creerDossier(3).pipe(
-        map(newDossier => {
-          this.dossierMedical = newDossier;
-          return newDossier;
-        })
-      );
-    }
-  }),
-  catchError(err => {
-    console.error("Erreur lors de la récupération/creation du dossier :", err);
-    return of(null);
-  })
-).subscribe();
-
-    // Revalidation dynamique
-    this.infosForm.get('indicatifUrgence')?.valueChanges.subscribe(() => this.setupPhoneValidation());
-    this.infosForm.get('telPersonneUrgence')?.valueChanges.subscribe(() => this.setupPhoneValidation());
+      }),
+      catchError(err => {
+        console.error("Erreur lors de la récupération/creation du dossier :", err);
+        return of(null);
+      })
+    ).subscribe();
+  } else {
+    console.error("⚠️ Impossible de récupérer l’utilisateur connecté.");
   }
+
+  // Revalidation dynamique
+  this.infosForm.get('indicatifUrgence')?.valueChanges.subscribe(() => this.setupPhoneValidation());
+  this.infosForm.get('telPersonneUrgence')?.valueChanges.subscribe(() => this.setupPhoneValidation());
+}
 
   getStepIcon(key: string): string {
   switch (key) {
@@ -354,7 +364,7 @@ public formatExamens(dossier: DossierMedical): string[] {
 
     nextStep(): void {
     if (!this.isStepValid(this.activeStepIndex)) return;
-    // this.savePartial();
+    this.savePartial();
     console.log(this.steps[this.activeStepIndex].key, '✔ Étape validée');
     if (this.activeStepIndex < this.steps.length - 1) {
       this.activeStepIndex++;
@@ -398,12 +408,23 @@ public formatExamens(dossier: DossierMedical): string[] {
   }
 
   savePartial() {
-    const id = this.dossierMedical.id;
-    const data = this.dossierForm.value;
-    data.infos.telPersonneUrgence = data.infos.indicatifUrgence + data.infos.telPersonneUrgence;
+  const id = this.dossierMedical.id;
+  console.log('💾 Sauvegarde partielle du dossier ID:', id);
 
+  const data = this.dossierForm.value;
+
+  // ✅ Fusion indicatif + numéro
+  if (data.infos.indicatifUrgence && data.infos.telPersonneUrgence) {
+    data.infos.telPersonneUrgence =
+      data.infos.indicatifUrgence + data.infos.telPersonneUrgence;
+  }
+
+  // ✅ Supprimer la clé indicatifUrgence après usage
+  delete data.infos.indicatifUrgence;
     if (id !== undefined) {
-      this.dossierService.updateInfosUrgence(id, data.infos).subscribe();
+      this.dossierService.updateInfosUrgence(id, data.infos).subscribe(() => {
+        console.log('✔ Dossier médical mis à jour' , data.infos);
+      });
       this.dossierService.updateAntecedents(id, data.antecedents).subscribe();
       this.dossierService.updateExamenClinique(id, data.examenClinique).subscribe();
       this.dossierService.updateExamensComplementaires(id, data.examensComplementaires).subscribe();
@@ -420,6 +441,9 @@ public formatExamens(dossier: DossierMedical): string[] {
 
   finalize() {
     console.log('✔ Sauvegarde complète terminée: ', this.dossierForm.value);
+
+    // 🔹 Après la sauvegarde, redirection vers la tournée optimisée
+    this.router.navigate(['/tournee-optimisee']);
   }
 
   /** Helpers */

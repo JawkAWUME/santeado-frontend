@@ -32,7 +32,7 @@ export const routes: Routes = [
         component: CalendarRendezvousComponent
     },
     {
-        path: 'medical-dossier',
+        path: 'medical-dossier/:id',
         component: DossierMedicalComponent
     },
         {

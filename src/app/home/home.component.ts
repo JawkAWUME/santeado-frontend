@@ -18,7 +18,6 @@ import { Router } from '@angular/router';
   styleUrl: './home.component.css'
 })
 export class HomeComponent implements AfterViewInit {
-
   map!: mapboxgl.Map;
   latitude!: number;
   longitude!: number;

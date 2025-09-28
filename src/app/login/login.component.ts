@@ -31,7 +31,7 @@ export class LoginComponent {
           // ✅ On utilise la vraie réponse du backend
           this.auth.saveToken(res.token, res.user.role, true);
           this.auth.saveUser(res.user);
-
+           console.log('User saved:',  this.auth.getCurrentUser());  
           // ✅ Redirection selon le rôle
           this.router.navigate([
             res.user.role === 'PATIENT' ? '/' : '/tournee-optimisee'

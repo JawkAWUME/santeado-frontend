@@ -9,7 +9,7 @@ import frLocale from '@fullcalendar/core/locales/fr'; // ⬅️ Français
 import { CommonModule } from '@angular/common';
 import { SidebarComponent } from '../shared/sidebar/sidebar.component';
 import { RendezVousService } from '../services/rdv/rendez-vous.service';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthService } from '../services/auth/auth.service';
 
 @Component({
@@ -22,7 +22,7 @@ export class TourneeOptimiseeComponent implements AfterViewInit, OnDestroy {
   constructor(
     private rendezVousService: RendezVousService,
     private authService: AuthService,
-    private route: ActivatedRoute
+    private router: Router,
   ) {}
 
   rdvs: RendezVous[] = [];
@@ -96,7 +96,12 @@ export class TourneeOptimiseeComponent implements AfterViewInit, OnDestroy {
       date: r.dateHeure,
       color: '#60a5fa',
       textColor: '#fff',
-      extendedProps: { adresse: r.patient!.adresse }
+      extendedProps: { 
+        idPatient: r.patient!.id,
+        adresse: r.patient!.adresse,
+        latitude: r.patient!.latitude,
+        longitude: r.patient!.longitude
+      }
     }));
   }
 
@@ -111,9 +116,22 @@ export class TourneeOptimiseeComponent implements AfterViewInit, OnDestroy {
   }
 
   onEventClick(info: any) {
+    const patientId = info.event.extendedProps.idPatient;
     const nom = info.event.title;
-    const date = info.event.start;
-    alert(`🩺 RDV avec ${nom} le ${date.toLocaleString()}`);
+    const date = info.event.start.toLocaleDateString();
+    const action = confirm(
+      `🩺 RDV avec ${nom} le ${date}\n\nVoulez-vous créer un dossier médical ?`
+    );
+
+    if (action && patientId) {
+      this.router.navigate(['/medical-dossier', patientId]);
+    }
+
+    const latitude = info.event.extendedProps['latitude'];
+    const longitude = info.event.extendedProps['longitude'];
+    if (latitude && longitude) {
+      this.map.flyTo({ center: [longitude, latitude], zoom: 15, essential: true });
+    }
   }
 
   onEventMount(info: any) {
@@ -154,22 +172,30 @@ export class TourneeOptimiseeComponent implements AfterViewInit, OnDestroy {
           this.optimizedRoute = { distance, duration };
 
           const route = data.routes[0].geometry;
-          this.map.addSource('route', {
-            type: 'geojson',
-            data: {
+          if (this.map.getSource('route')) {
+            (this.map.getSource('route') as mapboxgl.GeoJSONSource).setData({
               type: 'Feature',
               properties: {},
               geometry: route
-            }
-          });
+            });
+          } else {
+              this.map.addSource('route', {
+              type: 'geojson',
+              data: {
+                type: 'Feature',
+                properties: {},
+                geometry: route
+              }
+            });
 
-          this.map.addLayer({
-            id: 'route-line',
-            type: 'line',
-            source: 'route',
-            layout: { 'line-join': 'round', 'line-cap': 'round' },
-            paint: { 'line-color': '#00b894', 'line-width': 5 }
-          });
+            this.map.addLayer({
+              id: 'route-line',
+              type: 'line',
+              source: 'route',
+              layout: { 'line-join': 'round', 'line-cap': 'round' },
+              paint: { 'line-color': '#00b894', 'line-width': 5 }
+            });
+          }
         }
       })
       .catch(err => console.error('Erreur itinéraire Mapbox', err));
