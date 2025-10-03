@@ -7,5 +7,5 @@ export interface PaiementRequest {
     patient: Patient;
     professionnel: ProSante;
     statut: string;
-    methode: 'WAVE' | 'ORANGE';
+    methode: 'Wave' | 'Orange Money';
 }

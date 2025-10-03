@@ -1,5 +1,5 @@
-import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { PaiementRequest } from '../../interfaces/paiement.request';
 
@@ -7,40 +7,42 @@ import { PaiementRequest } from '../../interfaces/paiement.request';
   providedIn: 'root'
 })
 export class PaiementService {
-
-  private baseUrl = 'http://localhost:10001/api/paiements';
+  private apiUrl = 'http://localhost:10001/api/paiements';
 
   constructor(private http: HttpClient) {}
 
-  /**
-   * 1️⃣ Initier un paiement sur le serveur et récupérer l'URL PayTech
-   * @param dto PaiementRequest
-   */
-  initierPaiement(dto: PaiementRequest): Observable<{ paiementUrl: string, paiementId: number }> {
-    return this.http.post<{ paiementUrl: string, paiementId: number }>(`${this.baseUrl}/initier`, dto);
+  /** Paiement direct (sans PayTech) */
+  effectuerPaiement(dto: PaiementRequest): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/payer`, dto);
   }
 
-  /**
-   * 2️⃣ Vérifier le statut d'un paiement existant
-   * @param paiementId Identifiant du paiement
-   */
-  getDetailPaiement(paiementId: number): Observable<PaiementRequest> {
-    return this.http.get<PaiementRequest>(`${this.baseUrl}/details/${paiementId}`);
+  /** Initier un paiement via PayTech (Wave / Orange Money) */
+  initierPaiement(dto: PaiementRequest): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/initier`, dto);
   }
 
-  /**
-   * 3️⃣ Lister toutes les factures d’un patient
-   * @param patientId Identifiant du patient
-   */
+  /** Récupérer le montant restant à payer d’un patient */
+  getMontantAPayer(patientId: number): Observable<number> {
+    return this.http.get<number>(`${this.apiUrl}/montant/${patientId}`);
+  }
+
+  /** Récupérer les détails d’un paiement */
+  getDetailPaiement(paiementId: number): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/details/${paiementId}`);
+  }
+
+  /** Lister les factures d’un patient */
   getFacturesPatient(patientId: number): Observable<any[]> {
-    return this.http.get<any[]>(`${this.baseUrl}/factures/${patientId}`);
+    return this.http.get<any[]>(`${this.apiUrl}/factures/${patientId}`);
   }
 
-  /**
-   * 4️⃣ Supprimer une facture (optionnel, admin seulement)
-   * @param factureId Identifiant de la facture
-   */
+  /** Supprimer une facture */
   supprimerFacture(factureId: number): Observable<void> {
-    return this.http.delete<void>(`${this.baseUrl}/factures/${factureId}`);
+    return this.http.delete<void>(`${this.apiUrl}/factures/${factureId}`);
+  }
+
+  /** Télécharger une facture PDF */
+  telechargerFacture(factureId: number): Observable<Blob> {
+    return this.http.get(`${this.apiUrl}/factures/${factureId}/pdf`, { responseType: 'blob' });
   }
 }

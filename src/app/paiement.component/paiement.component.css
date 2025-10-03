@@ -1,6 +1,6 @@
-/* ==== Global Cards ==== */
+/* ==== Paiement Component ==== */
 
-.card {
+.payment-card {
     background: #fff;
     border-radius: 18px;
     padding: 2rem;
@@ -9,42 +9,54 @@
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.card:hover {
+.payment-card:hover {
     transform: translateY(-3px);
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
 }
 
-.card-header {
+
+/* ==== Modal QR Code ==== */
+
+.modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.5);
     display: flex;
+    justify-content: center;
     align-items: center;
-    gap: 0.75rem;
-    margin-bottom: 1.5rem;
+    z-index: 50;
 }
 
-.card-header h2 {
-    font-size: 1.5rem;
+.modal-card {
+    background-color: #fff;
+    border-radius: 18px;
+    padding: 2rem;
+    max-width: 400px;
+    width: 90%;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.modal-card h3 {
+    font-size: 1.25rem;
     font-weight: 700;
     color: #1f2937;
-}
-
-.icon-title {
-    font-size: 1.8rem;
-    color: #2563eb;
+    text-align: center;
 }
 
 
-/* ==== Form & Inputs ==== */
+/* ==== QR Code ==== */
 
-.form-group {
-    margin-bottom: 1.25rem;
+ngx-qrcode img {
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
-.form-group label {
-    font-weight: 600;
-    color: #374151;
-    display: block;
-    margin-bottom: 0.5rem;
-}
+
+/* ==== Form Inputs ==== */
 
 .input-wrapper {
     display: flex;
@@ -65,9 +77,38 @@
     outline: none;
 }
 
-.input-wrapper i {
-    color: #6b7280;
-    font-size: 1.2rem;
+
+/* ==== Payment Methods ==== */
+
+.payment-methods {
+    display: flex;
+    gap: 1rem;
+}
+
+.method-btn {
+    flex: 1;
+    padding: 0.8rem;
+    border: 1px solid #d1d5db;
+    border-radius: 12px;
+    background: #fff;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.method-btn:hover {
+    border-color: #2563eb;
+    background: #f0f9ff;
+}
+
+.method-btn.active {
+    border-color: #2563eb;
+    background: #dbeafe;
+    color: #1e3a8a;
 }
 
 
@@ -115,37 +156,7 @@
 }
 
 
-/* ==== Méthodes de paiement ==== */
-
-.payment-methods {
-    display: flex;
-    gap: 1rem;
-}
-
-.method-btn {
-    flex: 1;
-    padding: 0.8rem;
-    border: 1px solid #d1d5db;
-    border-radius: 12px;
-    background: #fff;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.method-btn:hover {
-    border-color: #2563eb;
-    background: #f0f9ff;
-}
-
-.method-btn.active {
-    border-color: #2563eb;
-    background: #dbeafe;
-    color: #1e3a8a;
-}
-
-
-/* ==== Status ==== */
+/* ==== Payment Status ==== */
 
 .payment-status {
     margin-top: 1rem;
@@ -173,67 +184,53 @@
     border: 1px solid #fde68a;
 }
 
-
-/* ==== Details Card ==== */
-
-.details-card {
-    margin-top: 1.5rem;
-    padding: 1rem;
-    background: #f9fafb;
-    border: 1px solid #e5e7eb;
-    border-radius: 12px;
-}
-
-.details-card h3 {
-    font-weight: 600;
-    margin-bottom: 0.75rem;
-}
-
-.details-card ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-.details-card li {
-    margin-bottom: 0.5rem;
-    color: #374151;
-}
-
-
-/* ==== Factures ==== */
-
-.facture-list {
+.qr-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
     display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-}
-
-.facture-item {
-    display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
-    padding: 0.9rem 1rem;
-    border: 1px solid #e5e7eb;
-    border-radius: 12px;
+    z-index: 9999;
+}
+
+.qr-modal-content {
     background: #fff;
-    transition: all 0.2s;
-}
-
-.facture-item:hover {
-    border-color: #2563eb;
-    background: #f9fafb;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-}
-
-.facture-info p {
-    font-weight: 500;
-    color: #111827;
-}
-
-.empty-state {
-    color: #6b7280;
-    font-style: italic;
+    padding: 2rem;
+    border-radius: 18px;
     text-align: center;
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.1);
+    max-width: 300px;
+    width: 90%;
+}
+
+.qr-modal-content h3 {
+    margin-bottom: 1rem;
+}
+
+.qr-modal-content button {
     margin-top: 1rem;
+}
+
+.glass-card {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(12px);
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(40px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fadeInUp {
+    animation: fadeInUp 0.4s ease-out;
 }

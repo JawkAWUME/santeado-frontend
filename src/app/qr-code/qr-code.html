@@ -1,0 +1,13 @@
+<div class="flex flex-col items-center justify-center">
+    <ng-container *ngIf="qrCodeSrc; else loading">
+        <img [src]="qrCodeSrc" [alt]="altText" [style.width.px]="size" [style.height.px]="size" class="rounded-lg shadow-md" />
+        <p *ngIf="caption" class="text-sm text-gray-600 mt-2">{{ caption }}</p>
+    </ng-container>
+
+    <ng-template #loading>
+        <div class="flex flex-col items-center justify-center">
+            <div class="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+            <p class="mt-2 text-gray-500 text-sm">Génération du QR...</p>
+        </div>
+    </ng-template>
+</div>

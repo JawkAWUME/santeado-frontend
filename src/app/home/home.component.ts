@@ -49,6 +49,9 @@ export class HomeComponent implements AfterViewInit {
   creneauxDisponibles: string[] = [];
   selectedCreneau: string = '';
 
+  showErrorModal: boolean = false;
+  showSuccessModal: boolean = false;
+
   constructor(
     private proSanteService: ProSanteService,
     private rendezVousService: RendezVousService,
@@ -209,11 +212,10 @@ export class HomeComponent implements AfterViewInit {
 
   prendreRendezVous(): void {
     if (!this.selectedPro || !this.selectedCreneau || !this.rendezVousDate) {
-      alert("Veuillez sélectionner un praticien, une date et un créneau.");
+      this.showErrorModal = true;
       return;
     }
 
-    const currentUser = this.authService.getCurrentUser();
 
     // const dateStr = `${this.rendezVousDate}T${this.selectedCreneau}`;
 
@@ -236,8 +238,23 @@ export class HomeComponent implements AfterViewInit {
     };
     console.log(rdv, this.authService.getUser());
     this.rendezVousService.creerRendezVous(rdv).subscribe(() => {
-      alert('Rendez-vous confirmé !');
+      this.showSuccessModal = true;
       this.creneauxDisponibles = [];
     });
   }
+
+  fermerErrorModal(): void {
+    this.showErrorModal = false;
+  }
+
+  fermerSuccessModal(): void {
+    this.showSuccessModal = false;
+  }
+
+
+  allerMesRdv(): void {
+    this.showSuccessModal = false;
+    this.router.navigate(['/rdv']);
+  }
+
 }

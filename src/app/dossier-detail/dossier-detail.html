@@ -66,7 +66,23 @@
             <ul class="list-disc ml-6">
                 <li *ngFor="let item of dossier?.antecedents?.antecedentsObstetricaux">{{ item }}</li>
             </ul>
+
+            <h3 class="section-title mt-4">Antécédents psychologiques</h3>
+            <ul class="list-disc ml-6">
+                <li *ngFor="let item of dossier?.antecedents?.antecedentsPsychologiques">{{ item }}</li>
+            </ul>
+
+            <h3 class="section-title mt-4">Maladies Familiales</h3>
+            <ul class="list-disc ml-6">
+                <li *ngFor="let item of dossier?.antecedents?.maladiesFamiliales">{{ item }}</li>
+            </ul>
+
+            <h3 class="section-title mt-4">Allergies</h3>
+            <ul class="list-disc ml-6">
+                <li *ngFor="let item of dossier?.antecedents?.allergies">{{ item }}</li>
+            </ul>
         </div>
+
 
         <!-- 🔹 Onglet Examens cliniques -->
         <div *ngIf="activeTab === 'examen'" class="tab-content">

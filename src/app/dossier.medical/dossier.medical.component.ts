@@ -25,6 +25,8 @@ import { EvolutionSuivi } from '../interfaces/evolution-suivi';
 import { DiagnosticMedical } from '../interfaces/diagnostic.medical';
 import { catchError, map, of, switchMap } from 'rxjs';
 import { AuthService } from '../services/auth/auth.service';
+import { PatientService } from '../services/patient/patient.service';
+import { Patient } from '../interfaces/patient';
 
 @Component({
   selector: 'app-dossier.medical',
@@ -65,7 +67,7 @@ export class DossierMedicalComponent {
   dossierForm: FormGroup;
   dossierMedical!: DossierMedical;
   patientId!: number;
-
+  currentPatient!: Patient | null; // Type selon ton interface Patient
   countryCallingCodes: CountryCallingCode[] = [];
   selectedCallingCode?: CountryCallingCode;
   filteredCodes: CountryCallingCode[] = [];
@@ -82,7 +84,8 @@ export class DossierMedicalComponent {
     private phoneRegexService: PhoneRegexService,
     private router: Router,
     private route: ActivatedRoute,
-    private authService: AuthService
+    private authService: AuthService,
+    private patientService: PatientService
   ) {
     // Initialisation du formulaire principal
     this.dossierForm = this.fb.group({
@@ -93,11 +96,12 @@ export class DossierMedicalComponent {
         telPersonneUrgence: ['', Validators.required],
       }),
       antecedents: this.fb.group({
-        antecedentsMedicaux: [[]],
-        antecedentsChirurgicaux: [[]],
-        antecedentsObstetricaux: [[]],
-        maladiesFamiliales: [[]],
-        allergies: [[]],
+        antecedentsMedicaux: this.fb.array([]),
+        antecedentsChirurgicaux: this.fb.array([]),
+        antecedentsObstetricaux: this.fb.array([]),
+        antecedentsPsychologiques: this.fb.array([]),
+        maladiesFamiliales: this.fb.array([]),
+        allergies: this.fb.array([]),
       }),
       examenClinique: this.fb.group({
         poids: [0],
@@ -116,6 +120,7 @@ export class DossierMedicalComponent {
         echographies: this.fb.array([]),
         irm: this.fb.array([]),
         testsSpeciaux: this.fb.array([]),
+        scanners: this.fb.array([]),
       }),
       traitements: this.fb.group({
         medicaments: this.fb.array([]),
@@ -175,8 +180,9 @@ export class DossierMedicalComponent {
     ];
   }
 
-  ngOnInit(): void {
+ ngOnInit(): void {
   this.patientId = +this.route.snapshot.paramMap.get('id')!;
+  console.log(this.patientId);
   this.updateVisibleSteps();
 
   // Charger les indicatifs téléphoniques
@@ -192,30 +198,39 @@ export class DossierMedicalComponent {
   });
 
   // ✅ Récupérer l’utilisateur connecté
-  console.log('Récupération du dossier pour le patient ID:', this.patientId);
   const currentUser = this.authService.getUser();
+  console.log('👤 Utilisateur connecté:', currentUser);
 
   if (currentUser && currentUser.id) {
-    this.dossierService.getDossierByPatientId(this.patientId).pipe(
-      map(dossiers => dossiers.length > 0 ? dossiers[dossiers.length - 1] : null),
-      switchMap(dossier => {
-        if (dossier) {
-          this.dossierMedical = dossier;
-          this.patchForm(dossier);
-          this.setupPhoneValidation();
-          return of(dossier);
-        } else {
-          // Aucun dossier → on en crée un pour ce patient
-          return this.dossierService.creerDossier(this.patientId).pipe(
-            map(newDossier => {
-              this.dossierMedical = newDossier;
-              return newDossier;
-            })
-          );
-        }
+    // ✅ Récupérer d’abord le patient
+    this.patientService.getPatientById(this.patientId).pipe(
+      switchMap(patient => {
+        this.currentPatient = patient; // on garde le patient en mémoire
+        console.log('🧍 Patient chargé:', patient);
+
+        // Ensuite → charger le dossier pour ce patient
+        return this.dossierService.getDossierByPatientId(this.patientId).pipe(
+          map(dossiers => dossiers.length > 0 ? dossiers[dossiers.length - 1] : null),
+          switchMap(dossier => {
+            if (dossier) {
+              this.dossierMedical = dossier;
+              this.patchForm(dossier); // ici tu peux injecter currentPatient
+              this.setupPhoneValidation();
+              return of(dossier);
+            } else {
+              // Aucun dossier → on en crée un pour ce patient
+              return this.dossierService.creerDossier(this.patientId).pipe(
+                map(newDossier => {
+                  this.dossierMedical = newDossier;
+                  return newDossier;
+                })
+              );
+            }
+          })
+        );
       }),
       catchError(err => {
-        console.error("Erreur lors de la récupération/creation du dossier :", err);
+        console.error("❌ Erreur lors de la récupération du patient/dossier:", err);
         return of(null);
       })
     ).subscribe();
@@ -242,6 +257,12 @@ export class DossierMedicalComponent {
 
   /** Patch form avec données dossier */
   patchForm(dossier: DossierMedical) {
+    const currentUser = this.authService.getUser();
+    if (!currentUser || !currentUser.id) {
+      console.error("⚠️ Impossible de récupérer l’utilisateur connecté.");
+      return;
+    }
+
     this.dossierForm.patchValue({
       infos: {
         couvertureSociale: dossier.couvertureSociale,
@@ -273,7 +294,11 @@ export class DossierMedicalComponent {
         examensEffectues: this.formatExamens(dossier),
         traitements: this.formatTraitements(dossier.traitements),
         evolution: this.formatEvolutions(dossier.evolutionSuivi),
-        recommandationsSortie: dossier.correspondances?.compteRenduHospitalisation?.recommandationsSortie || '',
+        recommandationsSortie: dossier.correspondances?.compteRenduHospitalisation?.recommandationsSortie || [],
+        dateRedaction: dossier.correspondances?.compteRenduHospitalisation?.dateRedaction || new Date(),
+        auteur: currentUser,
+        destinataire: dossier.correspondances?.compteRenduHospitalisation?.destinataire || null,
+        patient: this.currentPatient
       },
       compteRenduOperatoire: {
         nomIntervention: dossier.correspondances?.compteRenduOperatoire?.nomIntervention || '',
@@ -281,6 +306,9 @@ export class DossierMedicalComponent {
         descriptionActe: dossier.correspondances?.compteRenduOperatoire?.descriptionActe || '',
         conclusion: dossier.correspondances?.compteRenduOperatoire?.conclusion || '',
         complications: dossier.correspondances?.compteRenduOperatoire?.complications || [],
+         auteur: currentUser,
+        destinataire: dossier.correspondances?.compteRenduHospitalisation?.destinataire || null,
+        patient: this.currentPatient
       },
     
     }
@@ -425,16 +453,30 @@ public formatExamens(dossier: DossierMedical): string[] {
       this.dossierService.updateInfosUrgence(id, data.infos).subscribe(() => {
         console.log('✔ Dossier médical mis à jour' , data.infos);
       });
-      this.dossierService.updateAntecedents(id, data.antecedents).subscribe();
-      this.dossierService.updateExamenClinique(id, data.examenClinique).subscribe();
-      this.dossierService.updateExamensComplementaires(id, data.examensComplementaires).subscribe();
-      this.dossierService.updateTraitements(id, data.traitements).subscribe();
-      this.dossierService.updateDiagnosticMedical(id, data.diagnosticMedical).subscribe(() => {
-        console.log('✔ Dossier médical mis à jour');
+      console.log("Antécédents",data.antecedents);
+      this.dossierService.updateAntecedents(id, data.antecedents).subscribe(() => {
+        console.log('✔ Dossier médical mis à jour' , data.antecedents);
       });
-      this.dossierService.updateEvolutionSuivi(id, data.evolution).subscribe();
+      this.dossierService.updateExamenClinique(id, data.examenClinique).subscribe(() => {
+        console.log('✔ Dossier médical mis à jour' , data.examenClinique);
+      });
+      console.log("Examens complémentaires",data.examensComplementaires);
+      this.dossierService.updateExamensComplementaires(21, data.examensComplementaires).subscribe(() => {
+        console.log('✔ Dossier médical mis à jour' , data.examensComplementaires);
+      });
+      this.dossierService.updateTraitements(id, data.traitements).subscribe(() => {
+        console.log('✔ Dossier médical mis à jour' , data.traitements);
+      });
+      this.dossierService.updateDiagnosticMedical(id, data.diagnosticMedical).subscribe(() => {
+        console.log('✔ Dossier médical mis à jour' , data.diagnosticMedical);
+      });
+       console.log("Evolution Suivi",data.evolutionSuivi);
+      this.dossierService.updateEvolutionSuivi(id, data.evolutionSuivi).subscribe(() => {
+        console.log('✔ Dossier médical mis à jour' , data.evolutionSuivi);
+      });
+      console.log("Correspondances",data.correspondances);
       this.dossierService.updateCorrespondances(id, data.correspondances).subscribe(() => {
-        console.log('✔ Correspondances mises à jour');
+        console.log('✔ Correspondances mises à jour' , data.correspondances);
       });
     }
   }
@@ -469,6 +511,7 @@ public formatExamens(dossier: DossierMedical): string[] {
 }
 
   get antecedentsForm(): FormGroup {
+    console.log((this.dossierForm.get('antecedents') as FormGroup).value);
     return this.dossierForm.get('antecedents') as FormGroup;
   }
 

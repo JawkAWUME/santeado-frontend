@@ -1,88 +1,88 @@
 <app-sidebar></app-sidebar>
+<div class="card ml-72 p-6 rounded-2xl shadow-lg border border-gray-200 max-w-lg mx-auto mt-10">
 
-<div class="main-container ml-72 p-8 grid grid-cols-1 lg:grid-cols-2 gap-10">
+    <!-- Header -->
+    <div class="card-header">
+        <i class="bi bi-credit-card-2-front icon-title"></i>
+        <h2>Paiement sécurisé</h2>
+    </div>
 
-    <!-- 💳 Paiement -->
-    <div class="card payment-card">
-        <!-- Titre -->
-        <div class="card-header">
-            <i class="bi bi-credit-card-2-front icon-title"></i>
-            <h2>Paiement sécurisé</h2>
+    <!-- Montant -->
+    <div class="form-group">
+        <label>Montant à payer (XOF)</label>
+        <div class="input-wrapper">
+            <i class="bi bi-cash-stack"></i>
+            <input type="number" [(ngModel)]="montant" placeholder="Entrez le montant" />
         </div>
+    </div>
 
-        <!-- Montant -->
-        <div class="form-group">
-            <label>Montant à payer (XOF)</label>
-            <div class="input-wrapper">
-                <i class="bi bi-cash-stack"></i>
-                <input type="number" [value]="montant" readonly />
-            </div>
+    <!-- Méthode de paiement -->
+    <div class="form-group">
+        <label>Méthode de paiement</label>
+        <div class="payment-methods">
+            <button class="method-btn" [class.active]="selectedMethode === 'Wave'" (click)="selectMethode('Wave')">
+        <i class="bi bi-phone"></i> Wave
+      </button>
+            <button class="method-btn" [class.active]="selectedMethode === 'Orange Money'" (click)="selectMethode('Orange Money')">
+        <i class="bi bi-wallet2"></i> Orange Money
+      </button>
         </div>
+    </div>
 
-        <!-- Méthode de paiement -->
-        <div class="form-group">
-            <label>Méthode de paiement</label>
-            <div class="payment-methods">
-                <button class="method-btn" [class.active]="selectedMethode === 'WAVE'" (click)="selectedMethode='WAVE'">
-          <i class="bi bi-phone"></i> Wave
-        </button>
-                <button class="method-btn" [class.active]="selectedMethode === 'ORANGE'" (click)="selectedMethode='ORANGE'">
-          <i class="bi bi-wallet2"></i> Orange Money
-        </button>
-            </div>
-        </div>
-
-        <!-- Bouton payer -->
-        <button class="btn-primary" [disabled]="isProcessing" (click)="payer()">
-      <i class="bi bi-check2-circle"></i>
-      {{ isProcessing ? 'Traitement...' : 'Payer maintenant' }}
+    <!-- Bouton initier paiement -->
+    <div class="mt-4">
+        <button class="btn-primary" [disabled]="isProcessing || !selectedMethode || montant <= 0" (click)="initierPaiement()">
+      <i class="bi bi-arrow-right-circle"></i>
+      {{ isProcessing ? 'Redirection...' : 'Payer via PayTech' }}
     </button>
-
-        <!-- Statut -->
-        <div *ngIf="paiementStatus" class="payment-status" [ngClass]="{
-           'success': paiementStatus === 'SUCCES',
-           'error': paiementStatus === 'ECHEC',
-           'pending': paiementStatus === 'EN_ATTENTE'
-         }">
-            Statut : {{ paiementStatus }}
-        </div>
-
-        <!-- Détails du paiement -->
-        <div *ngIf="paiementDetails" class="details-card">
-            <h3>Détails du paiement</h3>
-            <ul>
-                <li><strong>ID Paiement :</strong> {{ paiementDetails.id }}</li>
-                <li><strong>Méthode :</strong> {{ paiementDetails.methode }}</li>
-                <li><strong>Montant :</strong> {{ paiementDetails.montant | number:'1.0-0' }} XOF</li>
-                <li><strong>Statut :</strong> {{ paiementDetails.statut }}</li>
-            </ul>
-        </div>
     </div>
 
-    <!-- 📄 Factures -->
-    <div class="card invoice-card">
-        <!-- Titre -->
-        <div class="card-header">
-            <i class="bi bi-file-earmark-text icon-title"></i>
-            <h2>Factures & Historique</h2>
-        </div>
-
-        <!-- Liste -->
-        <div *ngIf="(factures?.length ?? 0) > 0; else noFactures" class="facture-list">
-            <div *ngFor="let f of factures" class="facture-item">
-                <div class="facture-info">
-                    <p>#{{ f.id }} — {{ f.dateCreation | date:'short' }}</p>
-                </div>
-                <button class="btn-secondary">
-          <i class="bi bi-download"></i> PDF
-        </button>
-            </div>
-        </div>
-
-        <!-- Aucune facture -->
-        <ng-template #noFactures>
-            <p class="empty-state">Aucune facture disponible pour ce patient.</p>
-        </ng-template>
+    <!-- Statut du paiement -->
+    <div *ngIf="paiementStatus" class="payment-status mt-4" [ngClass]="{
+         'success': paiementStatus === 'SUCCES',
+         'error': paiementStatus === 'ECHEC',
+         'pending': paiementStatus === 'EN_ATTENTE'
+       }">
+        Statut : {{ paiementStatus }}
     </div>
 
+    <!-- Détails du paiement -->
+    <div *ngIf="paiementDetails" class="details-card mt-4">
+        <h3>Détails du paiement</h3>
+        <ul>
+            <li><strong>ID Paiement :</strong> {{ paiementDetails.id }}</li>
+            <li><strong>Méthode :</strong> {{ paiementDetails.methode }}</li>
+            <li><strong>Montant :</strong> {{ paiementDetails.montant | number:'1.0-0' }} XOF</li>
+            <li><strong>Statut :</strong> {{ paiementDetails.statut }}</li>
+        </ul>
+    </div>
+</div>
+
+<!-- Modal QR -->
+<!-- Modal QR Code -->
+<div *ngIf="showQrModal" class="fixed inset-0 flex items-center justify-center z-50">
+    <!-- overlay -->
+    <div class="absolute inset-0 bg-opacity-40 backdrop-blur-sm" (click)="closeQrModal()"></div>
+
+    <!-- modal content -->
+    <div class="glass-card relative max-w-md w-full p-8 rounded-2xl shadow-2xl animate-fadeInUp z-10 text-center">
+
+        <h2 class="text-2xl font-bold text-gray-800 mb-4">Scanner pour payer</h2>
+        <p class="text-gray-600 mb-6">Utilisez votre application Wave ou Orange Money pour scanner le QR code ci-dessous :</p>
+
+        <!-- QR Code -->
+        <div class="flex justify-center mb-6">
+            <app-qr-code *ngIf="qrCodeData" [value]="qrCodeData"></app-qr-code>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex justify-center gap-4">
+            <button (click)="closeQrModal()" class="bg-gray-200 text-gray-700 px-6 py-2 rounded-xl shadow hover:bg-gray-300 transition flex-1">
+        Fermer
+      </button>
+            <a *ngIf="qrCodeData" [href]="qrCodeData" target="_blank" class="bg-blue-600 text-white px-6 py-2 rounded-xl shadow hover:bg-blue-700 transition flex-1">
+        Ouvrir dans l’app
+      </a>
+        </div>
+    </div>
 </div>

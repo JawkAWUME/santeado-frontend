@@ -6,5 +6,6 @@ export interface ExamensComplementaires {
     radiographies?: string[];
     echographies?: string[];
     irm?: string[];
+    scanners?: string[];
     testsSpeciaux: Map<string, string>[];
 }

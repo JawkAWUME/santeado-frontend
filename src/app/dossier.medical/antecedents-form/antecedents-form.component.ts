@@ -1,11 +1,11 @@
-import { animate, query, stagger, style, transition, trigger } from '@angular/animations';
 import { CommonModule } from '@angular/common';
 import { Component, Input, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatChipsModule, MatChipInputEvent } from '@angular/material/chips';
+import { MatChipsModule } from '@angular/material/chips';
 import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 
 interface AntecedentField {
   label: string;
@@ -23,74 +23,62 @@ interface AntecedentField {
     ReactiveFormsModule,
     MatFormFieldModule,
     MatChipsModule,
-     MatButtonModule,
-    MatInputModule
+    MatButtonModule,
+    MatInputModule,
+    MatIconModule
   ],
   templateUrl: './antecedents-form.component.html',
-  styleUrl: './antecedents-form.component.css',
-  animations: [
-    trigger('chipAnimation', [
-      transition('* => *', [
-        query(':enter', [
-          style({ opacity: 0, transform: 'scale(0.95)' }),
-          stagger('50ms', animate('200ms ease-out', style({ opacity: 1, transform: 'scale(1)' })))
-        ], { optional: true }),
-        query(':leave', [
-          stagger('50ms', animate('150ms ease-in', style({ opacity: 0, transform: 'scale(0.9)' })))
-        ], { optional: true })
-      ])
-    ])
-  ]
+  styleUrl: './antecedents-form.component.css'
 })
 export class AntecedentsFormComponent implements OnInit {
   @Input() form!: FormGroup;
-  chipInputControl = new FormControl();
-  readonly separatorKeysCodes: number[] = [13, 188]; // Enter, comma
+
+  // Map des champs -> input controls (indépendants)
+  inputControls: { [key: string]: FormControl } = {};
 
   antecedentsFields: AntecedentField[] = [
-    { label: 'Antécédents médicaux', name: 'antecedentsMedicaux', placeholder: 'Ex: Diabète, Hypertension', icon: 'heart-pulse', iconBg: 'bg-rose-100 text-rose-600' },
-    { label: 'Chirurgicaux', name: 'antecedentsChirurgicaux', placeholder: 'Ex: Appendicectomie...', icon: 'scissors-line-dashed', iconBg: 'bg-blue-100 text-blue-600' },
-    { label: 'Obstétricaux', name: 'antecedentsObstetricaux', placeholder: 'Ex: Accouchements...', icon: 'baby', iconBg: 'bg-pink-100 text-pink-600' },
-    { label: 'Maladies familiales', name: 'maladiesFamiliales', placeholder: 'Ex: Diabète héréditaire...', icon: 'users', iconBg: 'bg-yellow-100 text-yellow-600' },
-    { label: 'Allergies', name: 'allergies', placeholder: 'Ex: Pollen, pénicilline...', icon: 'alert-triangle', iconBg: 'bg-red-100 text-red-600' },
+    { label: 'Antécédents médicaux', name: 'antecedentsMedicaux', placeholder: 'Ex: Diabète, Hypertension', icon: 'favorite', iconBg: 'bg-rose-100 text-rose-600' },
+    { label: 'Chirurgicaux', name: 'antecedentsChirurgicaux', placeholder: 'Ex: Appendicectomie...', icon: 'content_cut', iconBg: 'bg-blue-100 text-blue-600' },
+    { label: 'Obstétricaux', name: 'antecedentsObstetricaux', placeholder: 'Ex: Accouchements...', icon: 'child_care', iconBg: 'bg-pink-100 text-pink-600' },
+    { label: 'Psychologiques', name: 'antecedentsPsychologiques', placeholder: 'Ex: Anxiété, Autisme...', icon: 'psychology', iconBg: 'bg-indigo-100 text-indigo-600' },
+    { label: 'Maladies familiales', name: 'maladiesFamiliales', placeholder: 'Ex: Diabète héréditaire...', icon: 'groups', iconBg: 'bg-yellow-100 text-yellow-600' },
+    { label: 'Allergies', name: 'allergies', placeholder: 'Ex: Pollen, pénicilline...', icon: 'warning', iconBg: 'bg-red-100 text-red-600' },
   ];
 
   constructor(private fb: FormBuilder) {}
 
   ngOnInit(): void {
-    const group: Record<string, FormArray> = {};
-    this.antecedentsFields.forEach(field => {
-      group[field.name] = this.fb.array([]);
-    });
-    this.form = this.fb.group(group);
+    if (this.form) {
+      this.antecedentsFields.forEach(field => {
+        if (!this.form.get(field.name)) {
+          this.form.addControl(field.name, this.fb.array([]));
+        }
+        this.inputControls[field.name] = new FormControl('');
+      });
+    }
   }
 
   getChips(fieldName: string): FormArray {
     return this.form.get(fieldName) as FormArray;
   }
 
-  addChip(event: MatChipInputEvent, fieldName: string): void {
-    const input = event.input;
-    const value = event.value?.trim();
+  addChip(fieldName: string): void {
+    const value = this.inputControls[fieldName].value?.trim();
     if (value && this.getChips(fieldName).controls.every(c => c.value !== value)) {
       this.getChips(fieldName).push(this.fb.control(value));
     }
-    if (input) input.value = '';
-    this.chipInputControl.setValue(null);
+    this.inputControls[fieldName].reset();
+  }
+
+  handleChipInput(event: KeyboardEvent, fieldName: string): void {
+    const value = this.inputControls[fieldName].value?.trim();
+    if ((event.key === 'Enter' || event.key === 'Tab') && value) {
+      this.addChip(fieldName);
+      event.preventDefault();
+    }
   }
 
   removeChip(fieldName: string, index: number): void {
     this.getChips(fieldName).removeAt(index);
-  }
-
-  handleAutocompleteSelection(event: KeyboardEvent, fieldName: string) {
-    const value = this.chipInputControl.value?.trim();
-    if ((event.key === 'Enter' || event.key === 'Tab') && value) {
-      if (this.getChips(fieldName).controls.every(c => c.value !== value)) {
-        this.getChips(fieldName).push(this.fb.control(value));
-      }
-      this.chipInputControl.reset();
-      event.preventDefault();
-    }
   }
 }

@@ -13,14 +13,11 @@ import { provideNativeDateAdapter } from '@angular/material/core';
 import * as echarts from 'echarts';
 import { provideEchartsCore } from 'ngx-echarts';
 
-
 export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideAnimations(),
-    provideEchartsCore({
-      echarts,
-    }),
+    provideEchartsCore({ echarts }),
     provideRouter(routes),
     provideHttpClient(),
     provideNativeDateAdapter(),
@@ -30,7 +27,7 @@ export const appConfig: ApplicationConfig = {
       MatInputModule,
       MatButtonModule,
       MatStepperModule,
-      ReactiveFormsModule
-    ) // ✅ Ajout ici
+      ReactiveFormsModule,
+    )
   ]
 };

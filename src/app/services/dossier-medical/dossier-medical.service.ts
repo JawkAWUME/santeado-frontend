@@ -69,7 +69,7 @@ export class DossierMedicalService {
   }
 
   updateDiagnosticMedical(patientId: number, diagnostic: DiagnosticMedical): Observable<void> {
-    return this.http.put<void>(`${this.baseUrl}/${patientId}/diagnostic-medical`, diagnostic);
+    return this.http.put<void>(`${this.baseUrl}/${patientId}/diagnostic`, diagnostic);
   }
 
   updateEvolutionSuivi(patientId: number, evolution: EvolutionSuivi): Observable<void> {

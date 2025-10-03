@@ -5,11 +5,11 @@ import mapboxgl from 'mapbox-gl';
 import { CalendarOptions } from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
-import frLocale from '@fullcalendar/core/locales/fr'; // ⬅️ Français
+import frLocale from '@fullcalendar/core/locales/fr';
 import { CommonModule } from '@angular/common';
 import { SidebarComponent } from '../shared/sidebar/sidebar.component';
 import { RendezVousService } from '../services/rdv/rendez-vous.service';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../services/auth/auth.service';
 
 @Component({
@@ -18,11 +18,11 @@ import { AuthService } from '../services/auth/auth.service';
   templateUrl: './tournee-optimisee.component.html',
   styleUrl: './tournee-optimisee.component.css'
 })
-export class TourneeOptimiseeComponent implements AfterViewInit, OnDestroy {
+export class TourneeOptimiseeComponent implements AfterViewInit, OnDestroy, OnInit {
   constructor(
     private rendezVousService: RendezVousService,
     private authService: AuthService,
-    private router: Router,
+    private router: Router
   ) {}
 
   rdvs: RendezVous[] = [];
@@ -31,6 +31,18 @@ export class TourneeOptimiseeComponent implements AfterViewInit, OnDestroy {
 
   map!: mapboxgl.Map;
   markers: mapboxgl.Marker[] = [];
+
+  // 🎨 Etat pour le modal générique
+  showModal = false;
+  modalTitle = '';
+  modalMessage = '';
+  modalConfirmCallback: (() => void) | null = null;
+
+  // 🎨 Etat pour le modal dossier médical
+  showMedicalModal = false;
+  medicalPatientName = '';
+  medicalPatientId: number | null = null;
+  medicalDate = '';
 
   calendarOptions: CalendarOptions = {
     locale: frLocale,
@@ -42,7 +54,7 @@ export class TourneeOptimiseeComponent implements AfterViewInit, OnDestroy {
       right: 'dayGridMonth,dayGridWeek,dayGridDay'
     },
     selectable: true,
-    editable: true, // Glisser-déposer activé
+    editable: true,
     selectMirror: true,
     select: this.handleDateClick.bind(this),
     events: [],
@@ -52,25 +64,22 @@ export class TourneeOptimiseeComponent implements AfterViewInit, OnDestroy {
   };
 
   ngOnInit(): void {
-    // Récupérer l'ID de tournée depuis les paramètres de la route
-      const currentUser = this.authService.getUser();
-      const proId = currentUser?.id;
-      console.log("ID Pro Santé connecté :", proId);
-      if (proId) {
-        this.rendezVousService.getRendezVousPro(proId).subscribe((rdvs: RendezVous[]) => {
-          this.rdvs = rdvs;
-          this.initCalendrier();
-          if (this.map) {
-            this.placerMarkers();
-            this.tracerItineraire();
-          }
-        });
-      }
- 
+    const currentUser = this.authService.getUser();
+    const proId = currentUser?.id;
+    if (proId) {
+      this.rendezVousService.getRendezVousPro(proId).subscribe((rdvs: RendezVous[]) => {
+        this.rdvs = rdvs;
+        this.initCalendrier();
+        if (this.map) {
+          this.placerMarkers();
+          this.tracerItineraire();
+        }
+      });
+    }
   }
 
   ngAfterViewInit(): void {
-    mapboxgl.accessToken = 'pk.eyJ1IjoiamF3ayIsImEiOiJjbWJ4c2hnam8wcTFyMmtzNjlwODV3OXA5In0.mWgOmSTlFKW9eZF9WntwZA';
+    mapboxgl.accessToken = 'pk.xxxxxxx'; // ✅ ton token Mapbox
     this.map = new mapboxgl.Map({
       container: this.mapContainer.nativeElement,
       style: 'mapbox://styles/mapbox/streets-v11',
@@ -96,7 +105,7 @@ export class TourneeOptimiseeComponent implements AfterViewInit, OnDestroy {
       date: r.dateHeure,
       color: '#60a5fa',
       textColor: '#fff',
-      extendedProps: { 
+      extendedProps: {
         idPatient: r.patient!.id,
         adresse: r.patient!.adresse,
         latitude: r.patient!.latitude,
@@ -106,26 +115,22 @@ export class TourneeOptimiseeComponent implements AfterViewInit, OnDestroy {
   }
 
   handleDateClick(selectInfo: any) {
-    alert(`Date sélectionnée : ${selectInfo.startStr}`);
+    this.openModal("📅 Date sélectionnée", `Vous avez sélectionné la date : ${selectInfo.startStr}`);
   }
 
   onEventDrop(info: any) {
     const newDate = info.event.start;
-    alert(`📆 RDV déplacé au ${newDate.toLocaleString()}`);
-    // TODO: Enregistrer côté backend
+    this.openModal("📆 Déplacement de RDV", `Le RDV a été déplacé au ${newDate.toLocaleString()}`);
+    // TODO: enregistrer côté backend
   }
 
   onEventClick(info: any) {
     const patientId = info.event.extendedProps.idPatient;
     const nom = info.event.title;
     const date = info.event.start.toLocaleDateString();
-    const action = confirm(
-      `🩺 RDV avec ${nom} le ${date}\n\nVoulez-vous créer un dossier médical ?`
-    );
 
-    if (action && patientId) {
-      this.router.navigate(['/medical-dossier', patientId]);
-    }
+    // 👉 Affiche le modal médical
+    this.openMedicalModal(nom, patientId, date);
 
     const latitude = info.event.extendedProps['latitude'];
     const longitude = info.event.extendedProps['longitude'];
@@ -138,8 +143,7 @@ export class TourneeOptimiseeComponent implements AfterViewInit, OnDestroy {
     info.el.addEventListener('dblclick', () => {
       const nom = info.event.title;
       const date = info.event.start;
-      alert(`✏️ Modifier RDV : ${nom} le ${date.toLocaleString()}`);
-      // TODO: Ouvrir modale pour édition
+      this.openModal("✏ Modifier RDV", `Modifier le RDV de ${nom} le ${date.toLocaleString()}`);
     });
   }
 
@@ -179,13 +183,9 @@ export class TourneeOptimiseeComponent implements AfterViewInit, OnDestroy {
               geometry: route
             });
           } else {
-              this.map.addSource('route', {
+            this.map.addSource('route', {
               type: 'geojson',
-              data: {
-                type: 'Feature',
-                properties: {},
-                geometry: route
-              }
+              data: { type: 'Feature', properties: {}, geometry: route }
             });
 
             this.map.addLayer({
@@ -205,5 +205,33 @@ export class TourneeOptimiseeComponent implements AfterViewInit, OnDestroy {
     if (this.map) this.map.remove();
   }
 
-  
+  // 🔹 Modal générique
+  openModal(title: string, message: string, confirmCallback?: () => void) {
+    this.modalTitle = title;
+    this.modalMessage = message;
+    this.modalConfirmCallback = confirmCallback ?? null;
+    this.showModal = true;
+  }
+
+  closeModal(confirm: boolean) {
+    this.showModal = false;
+    if (confirm && this.modalConfirmCallback) {
+      this.modalConfirmCallback();
+    }
+  }
+
+  // 🔹 Modal médical spécifique
+  openMedicalModal(nom: string, patientId: number, date: string) {
+    this.medicalPatientName = nom;
+    this.medicalPatientId = patientId;
+    this.medicalDate = date;
+    this.showMedicalModal = true;
+  }
+
+  closeMedicalModal(confirm: boolean) {
+    this.showMedicalModal = false;
+    if (confirm && this.medicalPatientId) {
+      this.router.navigate(['/medical-dossier', this.medicalPatientId]);
+    }
+  }
 }

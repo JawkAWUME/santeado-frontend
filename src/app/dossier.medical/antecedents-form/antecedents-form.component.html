@@ -5,22 +5,28 @@
             <!-- Label + icône -->
             <div class="flex items-center gap-3">
                 <div class="p-2 rounded-full shadow-sm" [ngClass]="field.iconBg">
-                    <i class="lucide w-5 h-5" [ngClass]="field.icon"></i>
+                    <mat-icon>{{ field.icon }}</mat-icon>
                 </div>
                 <h3 class="text-lg font-semibold text-gray-900 break-words max-w-full">
                     {{ field.label }}
                 </h3>
             </div>
 
-            <!-- Champ -->
-            <mat-form-field appearance="fill" class="w-full">
-                <mat-label>{{ field.label}}</mat-label>
-                <input matInput [formControl]="chipInputControl" (keydown)="handleAutocompleteSelection($event, field.name)" placeholder="{{ field.placeholder }}" />
-            </mat-form-field>
+            <!-- Champ input -->
+            <div class="flex items-center gap-2">
+                <mat-form-field appearance="fill" class="w-full">
+                    <mat-label>{{ field.label }}</mat-label>
+                    <input matInput [formControl]="inputControls[field.name]" (keydown)="handleChipInput($event, field.name)" [placeholder]="field.placeholder" />
+                </mat-form-field>
 
-            <!-- Chip listbox -->
-            <mat-chip-listbox [@chipAnimation] multiple class="w-full">
-                <mat-chip *ngFor="let chip of getChips(field.name).controls; let i = index" [value]="chip.value" selected [removable]="true" (removed)="removeChip(field.name, i)">
+                <button mat-icon-button color="primary" (click)="addChip(field.name)" [disabled]="!inputControls[field.name].value?.trim()" class="hover:bg-blue-100 rounded-full">
+          <mat-icon>add</mat-icon>
+        </button>
+            </div>
+
+            <!-- Chips de résumé -->
+            <mat-chip-listbox multiple class="w-full">
+                <mat-chip *ngFor="let chip of getChips(field.name).controls; let i = index" selected removable (removed)="removeChip(field.name, i)">
                     {{ chip.value }}
                     <button matChipRemove [attr.aria-label]="'Supprimer ' + chip.value">✕</button>
                 </mat-chip>

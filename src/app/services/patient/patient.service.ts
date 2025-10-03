@@ -17,5 +17,11 @@ export class PatientService {
       );
    }
 
+   getPatientById(id: number): Observable<Patient | null> {
+      return this.http.get<{ data: Patient }>(`${this.apiUrlPatients}/${id}`).pipe(
+         map(response => response.data ?? null)
+      );
+   }
 
+   
 }

@@ -48,7 +48,7 @@ export class DossierHistorique implements OnInit {
   const user = this.authService.getUser();
     console.log('Utilisateur connecté :', user.id);
   if (user && user.id) {
-    this.dossierService.getDossierByPatientId(user.id).subscribe({
+    this.dossierService.getDossierByPatientId(20).subscribe({
       next: (dossiers) => {
         console.log('Dossiers chargés :', dossiers);
         this.dossiers = dossiers;
