@@ -4,6 +4,7 @@ import { ProSante } from "./pro-sante";
 export interface PaiementRequest {
     id?: number;
     montant: number;
+    datePaiement?: string;
     patient: Patient;
     professionnel: ProSante;
     statut: string;

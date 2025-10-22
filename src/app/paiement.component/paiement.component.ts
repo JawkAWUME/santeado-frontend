@@ -1,112 +1,182 @@
-import { Component, OnInit } from '@angular/core';
-import { interval, Subscription } from 'rxjs';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { PaiementService } from '../services/paiement/paiement.service';
-import { PaiementRequest } from '../interfaces/paiement.request';
+import { AuthService } from '../services/auth/auth.service';
+import { Subscription, interval, timer } from 'rxjs';
+import { switchMap, takeUntil } from 'rxjs/operators';
 import { CommonModule } from '@angular/common';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
 import { QrCodeComponent } from '../qr-code/qr-code';
 import { SidebarComponent } from '../shared/sidebar/sidebar.component';
+import { Facture } from '../interfaces/facture';
+import { Paiement } from '../interfaces/paiement';
+import { PaiementRequest } from '../interfaces/paiement.request';
 
 @Component({
   selector: 'app-paiement',
   standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule,
-    ReactiveFormsModule,
-    QrCodeComponent,
-    SidebarComponent
-  ],
+  imports: [CommonModule, FormsModule, QrCodeComponent, SidebarComponent],
   templateUrl: './paiement.component.html',
   styleUrls: ['./paiement.component.css']
 })
-export class PaiementComponent implements OnInit {
+export class PaiementComponent implements OnInit, OnDestroy {
 
-  montant: number = 0;
-  selectedMethode: 'Wave' | 'Orange Money' | null = null;
-  isProcessing = false;
-
-  paiementStatus: 'SUCCES' | 'ECHEC' | 'EN_ATTENTE' | null = null;
-  paiementDetails: any = null;
-
-  // QR
+  factures: Facture[] = [];
   qrCodeData: string | null = null;
   showQrModal = false;
+  paiementStatus: string | null = null;
+  paiementDetails: Paiement | null = null;
+  pollingSub: Subscription | null = null;
 
-  private pollingSub: Subscription | null = null;
+  searchTerm: string = '';
+  filterStatus: string = '';
 
-  constructor(private paiementService: PaiementService) {}
+  totalFactures: number = 0;
+  totalPaye: number = 0;
+  totalRestant: number = 0;
+
+  constructor(
+    private paiementService: PaiementService,
+    private authService: AuthService
+  ) {}
 
   ngOnInit(): void {
-    // Ici tu pourrais charger un montant par défaut si nécessaire
+    this.loadFactures();
   }
 
-  selectMethode(methode: 'Wave' | 'Orange Money') {
-    this.selectedMethode = methode;
+  ngOnDestroy(): void {
+    this.pollingSub?.unsubscribe();
+  }
 
-    if (this.montant > 0) {
-      this.initierPaiement();
-    } else {
-      alert('Veuillez saisir un montant avant de choisir la méthode.');
+  // === Chargement des factures avec fallback mock si aucune facture réelle ===
+  loadFactures() {
+    const user = this.authService.getUser();
+    const patientId = user?.id || 10; // fallback pour tests
+
+    this.paiementService.getFacturesPatient(patientId).subscribe({
+      next: (f) => {
+        if (f && f.length > 0) {
+          // sécuriser chaque facture pour éviter paiement undefined
+          this.factures = f.map(facture => ({
+            ...facture,
+            paiement: facture.paiement || undefined,
+            montantASolder: null,
+            methode: facture.paiement?.methode || 'Wave'
+          }));
+        } else {
+          // fallback mock si aucune facture réelle
+          this.factures = [
+            {
+              id: 1,
+              numero: 'FAC-2025-001',
+              dateEmission: new Date().toISOString(),
+              paiement: {
+                montant: 25000,
+                patient: { id: patientId },
+                professionnel: { id: 21 },
+                id: 0,
+                datePaiement: '',
+                methode: '',
+                statut: ''
+              },
+              montantASolder: null,
+              methode: 'Wave'
+            },
+            {
+              id: 2,
+              numero: 'FAC-2025-002',
+              dateEmission: new Date().toISOString(),
+              paiement: {
+                montant: 15000,
+                patient: { id: patientId },
+                professionnel: { id: 21 },
+                id: 0,
+                datePaiement: '',
+                methode: '',
+                statut: ''
+              },
+              montantASolder: null,
+              methode: 'Orange Money'
+            }
+          ];
+        }
+        console.log("Factures chargées :", this.factures);
+        this.calculateTotals();
+      },
+      error: (err) => console.error("Erreur lors du chargement des factures", err)
+    });
+  }
+
+  // === Calcul des totaux ===
+  calculateTotals() {
+    this.totalFactures = this.factures.reduce((sum, f) => sum + (f.paiement?.montant || 0), 0);
+    this.totalPaye = this.factures.reduce((sum, f) => {
+      if (f.paiement && f.paiement.statut === 'SUCCES') return sum + (f.montantASolder || 0);
+      return sum;
+    }, 0);
+    this.totalRestant = this.totalFactures - this.totalPaye;
+  }
+
+  // === Filtrer et rechercher ===
+  filteredFactures(): Facture[] {
+    return this.factures.filter(f => {
+      const matchesSearch = f.numero.toLowerCase().includes(this.searchTerm.toLowerCase());
+      const matchesStatus = !this.filterStatus || f.paiement?.statut === this.filterStatus;
+      return matchesSearch && matchesStatus;
+    });
+  }
+
+  // === Initier paiement ===
+  initierPaiement(facture: Facture) {
+    if (!facture.paiement) {
+      console.warn("Paiement non disponible pour cette facture :", facture);
+      return;
     }
-  }
-
-  initierPaiement() {
-    if (!this.selectedMethode) return;
-
-    this.isProcessing = true;
 
     const dto: PaiementRequest = {
-      montant: this.montant,
-      methode: this.selectedMethode,
-      patient: { id: 1 }, // à remplacer par ton patientId réel
-      professionnel: { id: 21 },
+      datePaiement: new Date().toISOString(),
+      montant: facture.montantASolder || facture.paiement.montant,
+      methode: facture.methode as 'Wave' | 'Orange Money',
+      patient: { id: facture.paiement.patient?.id },
+      professionnel: { id: facture.paiement.professionnel?.id },
       statut: 'EN_ATTENTE'
     };
 
-    console.log("DTO Paiement: ", dto);
-
-    this.paiementService.initierPaiement(dto).subscribe({
+    this.paiementService.initierPaiementPourFacture(facture.id, dto).subscribe({
       next: (res) => {
-        // Génération de l'URL QR en fonction de la méthode choisie
-        if (this.selectedMethode === 'Wave') {
-          this.qrCodeData = `https://pay.wave.com/c/cos-209t5kqw81apr?a=${this.montant}&c=XOF&m=${encodeURIComponent("Paiement consultation")}`;
-        } else if (this.selectedMethode === 'Orange Money') {
-          this.qrCodeData = `https://qrcode.orange.sn/dmeQWeafgYJPdJlC7lF2?a=${this.montant}&c=XOF&m=${encodeURIComponent("Paiement consultation")}`;
+        if (dto.methode === "Wave"){
+          res.paiementUrl=`https://pay.wave.com/c/cos-209t5kqw81apr?a=${dto.montant}&c=XOF&m=Paiement%20facture%20${facture.numero} par ${facture.paiement?.patient?.nom}`;
         }
-
-        console.log("QR Code URL générée:", this.qrCodeData);
-
+        this.qrCodeData = res.paiementUrl;
         this.showQrModal = true;
-        this.isProcessing = false;
-
-        // Lancer le polling pour suivre le statut
         this.pollPaiement(res.paiementId);
       },
+      error: (err) => console.error("Erreur initier paiement", err, dto)
+    });
+  }
+
+  // === Polling paiement ===
+  pollPaiement(paiementId: string) {
+    this.pollingSub = interval(5000).pipe(
+      switchMap(() => this.paiementService.getDetailPaiement(+paiementId)),
+      takeUntil(timer(120000))
+    ).subscribe({
+      next: (res) => {
+        this.paiementStatus = res.statut;
+        this.paiementDetails = res;
+        this.calculateTotals();
+
+        if (['SUCCES', 'ECHEC'].includes(res.statut)) {
+          this.pollingSub?.unsubscribe();
+        }
+      },
       error: (err) => {
-        console.error(err);
-        this.isProcessing = false;
-        alert('Erreur lors de l\'initiation du paiement');
+        console.error("Erreur polling paiement", err);
+        this.pollingSub?.unsubscribe();
       }
     });
   }
 
-  // Polling toutes les 5s pour vérifier statut
-  pollPaiement(paiementId: string) {
-    this.pollingSub = interval(5000).subscribe(() => {
-      this.paiementService.getDetailPaiement(+paiementId).subscribe({
-        next: (res) => {
-          this.paiementStatus = res.statut;
-          this.paiementDetails = res;
-
-          if (res.statut === 'SUCCES' || res.statut === 'ECHEC') {
-            this.pollingSub?.unsubscribe();
-          }
-        }
-      });
-    });
-  }
-
+  // === Fermer modal QR ===
   closeQrModal() {
     this.showQrModal = false;
     this.qrCodeData = null;

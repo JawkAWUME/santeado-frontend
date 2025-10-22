@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { PaiementRequest } from '../../interfaces/paiement.request';
+import { Facture } from '../../interfaces/facture';
 
 @Injectable({
   providedIn: 'root'
@@ -11,14 +12,14 @@ export class PaiementService {
 
   constructor(private http: HttpClient) {}
 
-  /** Paiement direct (sans PayTech) */
-  effectuerPaiement(dto: PaiementRequest): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}/payer`, dto);
+  /** Paiement direct (paiement partiel ou total) pour une facture */
+  effectuerPaiement(factureId: number, dto: PaiementRequest): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/payer/${factureId}`, dto);
   }
 
-  /** Initier un paiement via PayTech (Wave / Orange Money) */
-  initierPaiement(dto: PaiementRequest): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}/initier`, dto);
+  /** Initier un paiement via PayTech (Wave / Orange Money) pour une facture */
+  initierPaiementPourFacture(factureId: number, dto: PaiementRequest): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/initier/${factureId}`, dto);
   }
 
   /** Récupérer le montant restant à payer d’un patient */
@@ -32,8 +33,8 @@ export class PaiementService {
   }
 
   /** Lister les factures d’un patient */
-  getFacturesPatient(patientId: number): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/factures/${patientId}`);
+  getFacturesPatient(patientId: number): Observable<Facture[]> {
+    return this.http.get<Facture[]>(`${this.apiUrl}/factures/${patientId}`);
   }
 
   /** Supprimer une facture */

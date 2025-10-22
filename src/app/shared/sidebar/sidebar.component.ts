@@ -2,72 +2,81 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth/auth.service';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-sidebar',
-  imports: [RouterLink, CommonModule],
+  standalone: true,
+  imports: [RouterLink, CommonModule, FormsModule],
   templateUrl: './sidebar.component.html',
-  styleUrl: './sidebar.component.css'
+  styleUrls: ['./sidebar.component.css']
 })
 export class SidebarComponent implements OnInit {
   user: any = {};
-  
+    searchTerm: string = '';
+  editMode: boolean = false;
+
   collapsibleItems = [
     {
-      label: 'UI Elements',
-      icon: 'mdi-crosshairs-gps',
+      label: 'Consultations',
+      icon: 'mdi-stethoscope',
       open: false,
       links: [
-        { text: 'Buttons', href: '/ui/buttons' },
-        { text: 'Dropdowns', href: '/ui/dropdowns' },
-        { text: 'Typography', href: '/ui/typography' },
+        { text: 'Toutes les consultations', href: '/consultations/all' },
+        { text: 'Nouvelle consultation', href: '/consultations/new' },
       ],
     },
     {
-      label: 'Icons',
-      icon: 'mdi-contacts',
-      open: false,
-      links: [{ text: 'Font Awesome', href: '/icons/font-awesome' }],
-    },
-    {
-      label: 'Forms',
-      icon: 'mdi-format-list-bulleted',
-      open: false,
-      links: [{ text: 'Form Elements', href: '/forms/basic' }],
-    },
-    {
-      label: 'Charts',
-      icon: 'mdi-chart-bar',
-      open: false,
-      links: [{ text: 'ChartJs', href: '/charts/chartjs' }],
-    },
-    {
-      label: 'Tables',
-      icon: 'mdi-table-large',
-      open: false,
-      links: [{ text: 'Basic Table', href: '/tables/basic' }],
-    },
-    {
-      label: 'User Pages',
-      icon: 'mdi-lock',
+      label: 'Rendez-vous',
+      icon: 'mdi-calendar-check',
       open: false,
       links: [
-        { text: 'Blank Page', href: '/pages/blank' },
-        { text: 'Login', href: '/auth/login' },
-        { text: 'Register', href: '/auth/register' },
-        { text: '404', href: '/error/404' },
-        { text: '500', href: '/error/500' },
+        { text: 'Mes rendez-vous', href: '/rendez-vous/my' },
+        { text: 'Planifier', href: '/rendez-vous/new' },
+      ],
+    },
+    {
+      label: 'Factures',
+      icon: 'mdi-receipt',
+      open: false,
+      links: [
+        { text: 'Toutes les factures', href: '/factures/all' },
+        { text: 'Paiements en attente', href: '/factures/pending' },
+      ],
+    },
+    {
+      label: 'Paramètres',
+      icon: 'mdi-cog-outline',
+      open: false,
+      links: [
+        { text: 'Profil', href: '/profil' },
+        { text: 'Sécurité', href: '/profil/security' },
       ],
     },
   ];
 
+  stats = {
+    consultations: 12,
+    rendezVous: 5,
+    paiements: 7,
+  };
+
   constructor(private auth: AuthService, private router: Router) {}
 
   ngOnInit(): void {
-    this.user = this.auth.getUser(); // ✅ récupère l’utilisateur connecté
+    this.user = this.auth.getUser(); // récupère l’utilisateur connecté
+  }
+
+  toggleItem(item: any) {
+    item.open = !item.open;
   }
 
   goToLogin() {
     this.router.navigate(['/login']);
   }
+
+  editProfile() {
+    this.editMode = true;
+  }
+
 }

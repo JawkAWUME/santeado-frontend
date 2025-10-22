@@ -1,4 +1,4 @@
-/* ==== Paiement Component ==== */
+/* ==== Cartes ==== */
 
 .payment-card {
     background: #fff;
@@ -10,40 +10,120 @@
 }
 
 .payment-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
 }
 
 
-/* ==== Modal QR Code ==== */
+/* ==== Inputs ==== */
 
-.modal-backdrop {
+.input-wrapper {
+    display: block;
+    width: 100%;
+    padding: 0.65rem 1rem;
+    border: 1px solid #d1d5db;
+    border-radius: 12px;
+    background: #f9fafb;
+    font-weight: 600;
+    color: #111827;
+    outline: none;
+    transition: all 0.2s;
+}
+
+.input-wrapper:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+
+/* ==== Buttons ==== */
+
+.btn-primary {
+    background-color: #0d9488;
+    color: white;
+    border-radius: 12px;
+    font-weight: 600;
+    padding: 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-primary:hover {
+    background-color: #059669;
+}
+
+.btn-primary:disabled {
+    background-color: #9ca3af;
+    cursor: not-allowed;
+}
+
+.btn-secondary {
+    background-color: #e5e7eb;
+    color: #374151;
+    border-radius: 12px;
+    font-weight: 600;
+    padding: 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-secondary:hover {
+    background-color: #d1d5db;
+}
+
+
+/* ==== Statut ==== */
+
+.payment-status {
+    margin-top: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 0.875rem;
+    width: fit-content;
+}
+
+.payment-status.success {
+    background-color: #dcfce7;
+    color: #166534;
+    border: 1px solid #86efac;
+}
+
+.payment-status.error {
+    background-color: #fee2e2;
+    color: #991b1b;
+    border: 1px solid #fca5a5;
+}
+
+.payment-status.pending {
+    background-color: #fef9c3;
+    color: #92400e;
+    border: 1px solid #fde68a;
+}
+
+
+/* ==== QR Modal ==== */
+
+.qr-modal {
     position: fixed;
-    inset: 0;
-    background-color: rgba(0, 0, 0, 0.5);
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 50;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 9999;
 }
 
-.modal-card {
-    background-color: #fff;
+.qr-modal-content {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(12px);
     border-radius: 18px;
     padding: 2rem;
-    max-width: 400px;
+    max-width: 360px;
     width: 90%;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 1.5rem;
-}
-
-.modal-card h3 {
-    font-size: 1.25rem;
-    font-weight: 700;
-    color: #1f2937;
     text-align: center;
 }
 
@@ -56,169 +136,7 @@ ngx-qrcode img {
 }
 
 
-/* ==== Form Inputs ==== */
-
-.input-wrapper {
-    display: flex;
-    align-items: center;
-    gap: 0.6rem;
-    border: 1px solid #d1d5db;
-    padding: 0.75rem 1rem;
-    border-radius: 12px;
-    background: #f9fafb;
-}
-
-.input-wrapper input {
-    border: none;
-    background: transparent;
-    flex: 1;
-    font-weight: 600;
-    color: #111827;
-    outline: none;
-}
-
-
-/* ==== Payment Methods ==== */
-
-.payment-methods {
-    display: flex;
-    gap: 1rem;
-}
-
-.method-btn {
-    flex: 1;
-    padding: 0.8rem;
-    border: 1px solid #d1d5db;
-    border-radius: 12px;
-    background: #fff;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.method-btn:hover {
-    border-color: #2563eb;
-    background: #f0f9ff;
-}
-
-.method-btn.active {
-    border-color: #2563eb;
-    background: #dbeafe;
-    color: #1e3a8a;
-}
-
-
-/* ==== Buttons ==== */
-
-.btn-primary {
-    width: 100%;
-    padding: 0.9rem;
-    border: none;
-    border-radius: 12px;
-    background: #2563eb;
-    color: white;
-    font-weight: 600;
-    font-size: 1rem;
-    cursor: pointer;
-    display: flex;
-    justify-content: center;
-    gap: 0.5rem;
-    align-items: center;
-    transition: background 0.2s;
-}
-
-.btn-primary:hover {
-    background: #1d4ed8;
-}
-
-.btn-primary:disabled {
-    background: #9ca3af;
-    cursor: not-allowed;
-}
-
-.btn-secondary {
-    padding: 0.5rem 1rem;
-    border: 1px solid #d1d5db;
-    border-radius: 10px;
-    background: #f3f4f6;
-    color: #374151;
-    font-size: 0.9rem;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.btn-secondary:hover {
-    background: #e5e7eb;
-}
-
-
-/* ==== Payment Status ==== */
-
-.payment-status {
-    margin-top: 1rem;
-    padding: 0.8rem;
-    border-radius: 10px;
-    font-weight: 600;
-    text-align: center;
-}
-
-.payment-status.success {
-    background: #dcfce7;
-    color: #166534;
-    border: 1px solid #86efac;
-}
-
-.payment-status.error {
-    background: #fee2e2;
-    color: #991b1b;
-    border: 1px solid #fca5a5;
-}
-
-.payment-status.pending {
-    background: #fef9c3;
-    color: #92400e;
-    border: 1px solid #fde68a;
-}
-
-.qr-modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 9999;
-}
-
-.qr-modal-content {
-    background: #fff;
-    padding: 2rem;
-    border-radius: 18px;
-    text-align: center;
-    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.1);
-    max-width: 300px;
-    width: 90%;
-}
-
-.qr-modal-content h3 {
-    margin-bottom: 1rem;
-}
-
-.qr-modal-content button {
-    margin-top: 1rem;
-}
-
-.glass-card {
-    background: rgba(255, 255, 255, 0.8);
-    backdrop-filter: blur(12px);
-}
+/* ==== Animations ==== */
 
 @keyframes fadeInUp {
     from {
@@ -233,4 +151,13 @@ ngx-qrcode img {
 
 .animate-fadeInUp {
     animation: fadeInUp 0.4s ease-out;
+}
+
+
+/* ==== Responsive ==== */
+
+@media (max-width: 768px) {
+    .ml-72 {
+        margin-left: 1rem;
+    }
 }

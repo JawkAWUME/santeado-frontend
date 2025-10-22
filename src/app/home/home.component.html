@@ -1,5 +1,13 @@
 <app-sidebar></app-sidebar>
+<div class="mt-6 ml-72">
+    <button (click)="allerMesRdv()" class="bg-indigo-600 text-white px-6 py-3 rounded-xl shadow hover:bg-indigo-700 transition flex items-center gap-2">
+    <i class="bi bi-list-check text-lg"></i> Voir mes rendez-vous
+  </button>
 
+    <button (click)="allerMesFiches()" class="bg-indigo-600 text-white px-6 py-3 rounded-xl shadow hover:bg-indigo-700 transition flex items-center gap-2">
+    <i class="bi bi-list-check text-lg"></i> Voir mes fiches médicales
+  </button>
+</div>
 <div class="main-container ml-72 p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
     <!-- Formulaire amélioré -->
     <div class="form-container glass-card p-8 rounded-2xl shadow-lg border border-gray-200 space-y-6">

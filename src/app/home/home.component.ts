@@ -9,6 +9,7 @@ import { RendezVousService } from '../services/rdv/rendez-vous.service';
 import { RendezVous } from '../interfaces/rendez-vous';
 import { AuthService } from '../services/auth/auth.service';
 import { Router } from '@angular/router';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-home',
@@ -17,20 +18,11 @@ import { Router } from '@angular/router';
   templateUrl: './home.component.html',
   styleUrl: './home.component.css'
 })
-export class HomeComponent implements AfterViewInit {
+export class HomeComponent implements AfterViewInit, OnInit {
   map!: mapboxgl.Map;
-  latitude!: number;
-  longitude!: number;
+  latitude: number = 0;
+  longitude: number = 0;
   rayonKm: number = 10;
-
-
-  ngOnInit(): void {
-    const currentUser = this.authService.getUser();
-
-    if (!currentUser || currentUser.role !== 'PATIENT') {
-      this.router.navigate(['/tournee-optimisee']);
-    }
-  }
 
   searchQuery: string = '';
   specialites: string[] = [
@@ -45,7 +37,7 @@ export class HomeComponent implements AfterViewInit {
   filteredPros: ProSante[] = [];
 
   selectedPro: ProSante | null = null;
-  rendezVousDate!: string;
+  rendezVousDate: string = '';
   creneauxDisponibles: string[] = [];
   selectedCreneau: string = '';
 
@@ -58,6 +50,13 @@ export class HomeComponent implements AfterViewInit {
     private authService: AuthService,
     private router: Router
   ) {}
+
+  ngOnInit(): void {
+    const currentUser = this.authService.getUser();
+    if (!currentUser || currentUser.role !== 'PATIENT') {
+      this.router.navigate(['/tournee-optimisee']);
+    }
+  }
 
   ngAfterViewInit(): void {
     this.detectLocation();
@@ -74,7 +73,6 @@ export class HomeComponent implements AfterViewInit {
           this.reverseGeocode(this.longitude, this.latitude);
           this.search();
 
-          // Suivi en temps réel
           navigator.geolocation.watchPosition(
             (pos) => {
               this.latitude = pos.coords.latitude;
@@ -90,7 +88,6 @@ export class HomeComponent implements AfterViewInit {
         },
         (error) => {
           console.error('Erreur de géolocalisation initiale', error);
-          // Défaut Paris
           this.latitude = 48.8566;
           this.longitude = 2.3522;
           this.initMap();
@@ -163,7 +160,7 @@ export class HomeComponent implements AfterViewInit {
     });
   }
 
-  filtrerDisponibles(): void {
+  async filtrerDisponibles(): Promise<void> {
     if (!this.pros || this.pros.length === 0) {
       this.filteredPros = [];
       return;
@@ -175,18 +172,13 @@ export class HomeComponent implements AfterViewInit {
     }
 
     const dateStr = this.rendezVousDate;
-    const verifs = this.pros.map(pro =>
-      this.rendezVousService.getCreneauxDisponibles(pro.id!, dateStr).toPromise().then(creneaux => ({
-        pro,
-        disponible: Array.isArray(creneaux) && creneaux.length > 0
-      }))
-    );
-
-    Promise.all(verifs).then(resultats => {
-      this.filteredPros = resultats
-        .filter(r => r.disponible)
-        .map(r => r.pro);
+    const verifs = this.pros.map(async pro => {
+      const creneaux = await firstValueFrom(this.rendezVousService.getCreneauxDisponibles(pro.id!, dateStr));
+      return { pro, disponible: Array.isArray(creneaux) && creneaux.length > 0 };
     });
+
+    const resultats = await Promise.all(verifs);
+    this.filteredPros = resultats.filter(r => r.disponible).map(r => r.pro);
   }
 
   onProSelected(): void {
@@ -216,30 +208,30 @@ export class HomeComponent implements AfterViewInit {
       return;
     }
 
+    const dateStr = `${this.rendezVousDate}T${this.selectedCreneau}`;
+    const dateObj = new Date(dateStr);
 
-    // const dateStr = `${this.rendezVousDate}T${this.selectedCreneau}`;
-
-    console.log(this.selectedCreneau);
-    console.log(this.selectedPro);
-    // Validation de la date
-    const dateObj = new Date(this.selectedCreneau);
-
-    // if (isNaN(dateObj.getTime())) {
-    //   console.log(dateObj.getTime());
-    //   alert("La date ou le créneau est invalide.");
-    //   return;
-    // }
+    if (isNaN(dateObj.getTime())) {
+      alert("La date ou le créneau est invalide.");
+      return;
+    }
 
     const rdv: RendezVous = {
       proSante: this.selectedPro,
-      patient: this.authService.getUser(), // Le patient sera déterminé côté backend via le token
+      patient: this.authService.getUser(),
       dateHeure: dateObj.toISOString(),
       statut: 'EN_ATTENTE',
     };
-    console.log(rdv, this.authService.getUser());
-    this.rendezVousService.creerRendezVous(rdv).subscribe(() => {
-      this.showSuccessModal = true;
-      this.creneauxDisponibles = [];
+
+    this.rendezVousService.creerRendezVous(rdv).subscribe({
+      next: () => {
+        this.showSuccessModal = true;
+        this.creneauxDisponibles = [];
+      },
+      error: (err) => {
+        console.error('Erreur prise de RDV', err);
+        this.showErrorModal = true;
+      }
     });
   }
 
@@ -251,10 +243,13 @@ export class HomeComponent implements AfterViewInit {
     this.showSuccessModal = false;
   }
 
-
   allerMesRdv(): void {
     this.showSuccessModal = false;
     this.router.navigate(['/rdv']);
   }
 
+  allerMesFiches(): void {
+    this.showSuccessModal = false;
+    this.router.navigate(['/dossiers-historique']);
+  }
 }
